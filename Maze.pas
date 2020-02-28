@@ -1,4 +1,15 @@
-﻿Program Maze;
+﻿{
+  TODO:
+  
+    - Random maze generator
+    - User maze input
+    - Saving mazes into files
+    - Menu
+    - "Game finished" window
+    - Record table
+}
+
+Program Maze;
 
 Uses
   GraphABC;
@@ -19,7 +30,6 @@ Procedure SetPlayer(x: integer; y: integer);
 Var
   current_pen_color: Color;
   current_width: integer;
-  
   current_brush_color: Color;
   
 Begin
@@ -81,14 +91,6 @@ end; // DeletePlayer
 // Function for checking if a move is possible
 Function CheckMove(current_x: integer; current_y: integer; target_x: integer; target_y: integer): boolean;
 begin
- { 
-  CheckMove:= false;
-  
-  // Check if target cell is neighboor
-  if (((abs(current_x-target_x) = cell_size) and (current_y = target_y)) or ((abs(current_y-target_y) = cell_size) and (current_x = target_x))) // and ((GetPixel(indent+1, indent+1) = GetPixel(target_x-indent-1, target_y-indent-1)))
-  then
-  begin
-  }  
     CheckMove:= true;
     
     // Check if move left
@@ -118,10 +120,6 @@ begin
       if (GetPixel(indent+1, indent+1) = GetPixel(target_x, target_y-indent-1))
       then
         CheckMove:= false;    
-    
-//  end; // if
-  
-
   
 end; // CheckMove
 
@@ -223,8 +221,7 @@ begin
    
 end; // KeyDown
 
-
-
+// Working on it...
 procedure GenerateMaze();
 Var
 //  i,j: integer; // for loop
@@ -341,19 +338,12 @@ Begin
   finish_x:= width;
   finish_y:= height-indent-indent-player_size;
   
-  // Set pen settings
-  SetPenColor(maze_color);
-  SetPenWidth(line_size);  
-  
   // Set window
   SetWindowHeight(height);
   SetWindowWidth(width);
   CenterWindow;  
   
   GenerateMaze();
-
-
-// DON`T DELETE !!! This is a playing part of program. Uncomment when generation is done.
   
   // Set start position
   MoveTo(2*indent, 2*indent);
@@ -376,5 +366,4 @@ Begin
   time_finish:= DateTime.Now;
   writeln('Win in ', time_finish-time_start, ' seconds!');
 
-  
 End.
