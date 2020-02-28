@@ -4,7 +4,7 @@ Uses
   GraphABC;
 Uses
   System;
-
+  
 Const
   width = 820; // width of the window
   height = 620; // height of the window
@@ -78,6 +78,53 @@ Begin
   
 end; // DeletePlayer
 
+// Function for checking if a move is possible
+Function CheckMove(current_x: integer; current_y: integer; target_x: integer; target_y: integer): boolean;
+begin
+ { 
+  CheckMove:= false;
+  
+  // Check if target cell is neighboor
+  if (((abs(current_x-target_x) = cell_size) and (current_y = target_y)) or ((abs(current_y-target_y) = cell_size) and (current_x = target_x))) // and ((GetPixel(indent+1, indent+1) = GetPixel(target_x-indent-1, target_y-indent-1)))
+  then
+  begin
+  }  
+    CheckMove:= true;
+    
+    // Check if move left
+    if (current_y = target_y) and ((current_x - target_x)= cell_size)
+    then
+      if (GetPixel(indent+1, indent+1) = GetPixel(target_x+player_size+indent+1, target_y))
+      then
+        CheckMove:= false;
+      
+    // Check if move right
+    if (current_y = target_y) and ((current_x - target_x) = -cell_size)
+    then
+      if (GetPixel(indent+1, indent+1) = GetPixel(target_x-indent-1, target_y))
+      then
+        CheckMove:= false;    
+      
+    // Check if move up
+    if ((current_y - target_y) = cell_size) and (current_x = target_x)
+    then
+      if (GetPixel(indent+1, indent+1) = GetPixel(target_x, target_y+player_size+indent+1))
+      then
+        CheckMove:= false;    
+      
+    // Check if move down
+    if ((current_y - target_y) = -cell_size) and (current_x = target_x)
+    then
+      if (GetPixel(indent+1, indent+1) = GetPixel(target_x, target_y-indent-1))
+      then
+        CheckMove:= false;    
+    
+//  end; // if
+  
+
+  
+end; // CheckMove
+
 // Make right move
 Procedure MoveRight(x: integer; y: integer);
 var
@@ -85,12 +132,7 @@ var
   
 Begin
   
-  check_move:= true;
-  
-  // Checking
-  if (GetPixel(indent+1, indent+1) = GetPixel(x+player_size+indent+1, y))
-  then
-    check_move:= false;
+  check_move:= CheckMove(x,y, x+cell_size,y);
   
   // Move if possible
   if (check_move=true)
@@ -109,12 +151,7 @@ var
   
 Begin
   
-  check_move:= true;
-  
-  // Checking
-  if (GetPixel(indent+1, indent+1) = GetPixel(x-indent-1, y))
-  then
-    check_move:= false;
+  check_move:= CheckMove(x,y, x-cell_size,y);
   
   // Move if possible
   if (check_move=true)
@@ -133,12 +170,7 @@ var
   
 Begin
   
-  check_move:= true;
-  
-  // Checking
-  if (GetPixel(indent+1, indent+1) = GetPixel(x, y-indent-1))
-  then
-    check_move:= false;
+  check_move:= CheckMove(x,y, x,y-cell_size);
   
   // Move if possible
   if (check_move=true)
@@ -157,12 +189,7 @@ var
   
 Begin
   
-  check_move:= true;
-  
-  // Checking
-  if (GetPixel(indent+1, indent+1) = GetPixel(x, y+indent+player_size+1))
-  then
-    check_move:= false;
+  check_move:= CheckMove(x,y, x,y+cell_size);
   
   // Move if possible
   if (check_move=true)
@@ -196,6 +223,107 @@ begin
    
 end; // KeyDown
 
+
+
+procedure GenerateMaze();
+Var
+//  i,j: integer; // for loop
+  direction: integer; // random direction choose variable
+  visited: integer; // visited cells counter
+  total_cells: integer; // total amount of cells
+  
+begin
+  
+  total_cells:= round((width-2*indent)/cell_size)*round((height-2*indent)/cell_size);
+  
+  // Set pen settings
+  SetPenColor(maze_color);
+  SetPenWidth(line_size);
+  
+  // Draw border
+  MoveTo(indent, indent);
+  LineTo(indent, height-indent);
+  LineTo(width-indent, height-indent);
+  LineTo(width-indent, indent);
+  LineTo(indent, indent);
+  MoveTo(2*indent, 2*indent);
+  
+  SetPlayer(PenX, PenY);
+  
+  visited:= 1;
+  
+  
+  while (visited < total_cells) do
+  begin
+    randomize;
+    direction:= PABCSystem.random(4) + 1;
+
+    case direction of
+      
+      1: // Right
+        begin
+          
+          if (CheckMove(PenX,PenY, PenX+cell_size,PenY) = true)
+          then
+          begin
+            MoveRight(PenX, PenY);
+            visited:= visited+1;
+          end;
+          
+        end;
+        
+      2: // Left
+        begin
+          
+          if (CheckMove(PenX,PenY, PenX-cell_size,PenY) = true)
+          then
+          begin
+            MoveLeft(PenX, PenY);
+            visited:= visited+1;
+          end;
+          
+        end;
+        
+        
+      3: // Up
+        begin
+          
+          if (CheckMove(PenX,PenY, PenX,PenY-cell_size) = true)
+          then
+          begin
+            MoveUp(PenX, PenY);
+            visited:= visited+1;
+          end;
+          
+        end;
+        
+      4: // Down
+        begin
+          
+          if (CheckMove(PenX,PenY, PenX,PenY+cell_size) = true)
+          then
+          begin
+            MoveDown(PenX, PenY);
+            visited:= visited+1;
+          end;
+          
+        end;
+      
+    end; // case
+    
+  end; // while
+  
+  DeletePlayer(PenX, PenY);
+  
+  MoveTo(width-indent, height-indent);
+  SetPenColor(clWhite);
+  SetPenWidth(line_size);
+  LineTo(width-indent, height-cell_size-indent);
+  SetPenColor(maze_color);
+  SetPenWidth(line_size);
+
+  
+end; // GenerateMaze
   
 Var // Maze  
   finish_x: integer; // finish X coordinate
@@ -208,7 +336,7 @@ Var // Maze
   
   
 Begin
-  
+ 
   // Set coordinates of the finish cell
   finish_x:= width;
   finish_y:= height-indent-indent-player_size;
@@ -220,22 +348,16 @@ Begin
   // Set window
   SetWindowHeight(height);
   SetWindowWidth(width);
-  CenterWindow;
+  CenterWindow;  
   
-  // Draw border
-  MoveTo(indent, indent);
-  LineTo(indent, height-indent);
-  LineTo(width-indent, height-indent);
-  MoveTo(width-indent, height-cell_size-indent);
-  LineTo(width-indent, indent);
-  LineTo(indent, indent);
-  
-  {
-    // Draw maze
-  }
+  GenerateMaze();
+
+
+// DON`T DELETE !!! This is a playing part of program. Uncomment when generation is done.
   
   // Set start position
-  SetPlayer(2*indent, 2*indent);
+  MoveTo(2*indent, 2*indent);
+  SetPlayer(PenX, PenY);
   
   time_start:= DateTime.Now;
   
@@ -248,13 +370,11 @@ Begin
     
     // Check for win
     check_win:= (PenX = finish_x) and (PenY = finish_y); 
-    if (check_win)
-    then
-    begin
-       time_finish:= DateTime.Now;
-       writeln('Win in ', time_finish-time_start, ' seconds!');  
-    end;
     
   end;    
+  
+  time_finish:= DateTime.Now;
+  writeln('Win in ', time_finish-time_start, ' seconds!');
+
   
 End.
