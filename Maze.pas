@@ -17,11 +17,11 @@ Uses
   System;
   
 Const
-  width = 820; // width of the window
-  height = 620; // height of the window
-  cell_size = 40; // size of one square cell
-  player_size = 20; // size of square player
-  indent = 10; // maze borders from window borders | player from cell borders
+  width = 810; // width of the window
+  height = 610; // height of the window
+  cell_size = 20; // size of one square cell
+  player_size = 10; // size of square player
+  indent = 5; // maze borders from window borders | player from cell borders
   line_size = 3; // width of all lines
   maze_color = clBlue; // color of the maze
   track_color = clYellow; // color of the track
@@ -406,11 +406,11 @@ begin
     begin
     
       randomize;
-      direction:= PABCSystem.random(4) + 1;
+      direction:= (PABCSystem.random(3472)*PABCSystem.Random(8321)) mod 4 + 1;
       
       case direction of
         
-        1: // Right
+        1://,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93,97: // Right
           begin
             
             if ((CheckDirection(PenX,PenY, PenX+cell_size,PenY) = true) and (CheckMove(PenX,PenY, PenX+cell_size,PenY) = true))
@@ -427,7 +427,7 @@ begin
             
           end;
           
-        2: // Left
+        2://,6,10,14,18,22,26,30,34,38,42,46,50,54,58,62,66,70,74,78,82,86,90,94,98: // Left
           begin
             
             if ((CheckDirection(PenX,PenY, PenX-cell_size,PenY) = true) and (CheckMove(PenX,PenY, PenX-cell_size,PenY) = true))
@@ -444,7 +444,7 @@ begin
           end;
           
           
-        3: // Up
+        3://,7,11,15,19,23,27,31,35,39,43,47,51,55,59,63,67,71,75,79,83,87,91,95,99: // Up
           begin
             
             if ((CheckDirection(PenX,PenY, PenX,PenY-cell_size) = true) and (CheckMove(PenX,PenY, PenX,PenY-cell_size) = true))
@@ -460,7 +460,7 @@ begin
             
           end;
           
-        4: // Down
+        4://,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100: // Down
           begin
             
             if ((CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true) and (CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true))
