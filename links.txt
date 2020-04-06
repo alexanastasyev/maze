@@ -1,3 +1,3 @@
-Кнопки - https://www.cyberforum.ru/pascalabc-net/thread1982600.html
-Коды клавиш - https://www.cyberforum.ru/cpp-beginners/thread423964.html
-Сохранение / загрузка сожержимого окна - http://pascalabc.net/downloads/pabcnethelp/index.htm?page=PABCUnits/GraphABC/gr_Window.html
+Buttons - https://www.cyberforum.ru/pascalabc-net/thread1982600.html
+Keys` codes - https://www.cyberforum.ru/cpp-beginners/thread423964.html
+Save / load of window content - http://pascalabc.net/downloads/pabcnethelp/index.htm?page=PABCUnits/GraphABC/gr_Window.html
