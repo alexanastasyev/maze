@@ -5,8 +5,10 @@
     - Saving mazes into files
     - Menu
     - "Game finished" window
+    - Timer
     - High scores table
     - Maze solver
+    
 }
 
 Program Maze;
@@ -25,9 +27,14 @@ Const
   line_size = 3; // width of all lines
   maze_color = clBlue; // color of the maze
   track_color = clYellow; // color of the track
+  player_color = clRed; // color of the player
+  
+  // Coordinates of the finish cell
+  finish_x = width;
+  finish_y = height-indent-indent-player_size;
 
 Type
-  arr = array[1..10000] of integer;
+  stack = array[1..10000] of integer;
 
 // Set player to position with x,y - top left cornner  
 Procedure SetPlayer(x: integer; y: integer);
@@ -45,13 +52,13 @@ Begin
   
   // Draw rectangle
   MoveTo(x, y);
-  SetPenColor(clRed);
+  SetPenColor(player_color);
   SetPenWidth(line_size);
   DrawRectangle(x,y, x+player_size,y+player_size);
   MoveTo(x,y);
   
   // Fill rectangle
-  SetBrushColor(clRed);
+  SetBrushColor(player_color);
   FillRectangle(x,y, x+player_size,y+player_size);
   
   // Get settings back
@@ -293,29 +300,6 @@ Begin
   
 end; // MoveDown
 
-// Make move
-procedure MakeMove(key: integer);  
-begin
-   
-   case key of
-     
-     VK_Left:
-        MoveLeft(PenX, PenY);
-       
-     VK_Right:
-        MoveRight(PenX, PenY);
-       
-     VK_Up:
-        MoveUp(PenX, PenY);
-       
-     VK_Down:
-        MoveDown(PenX, PenY);
-     
-   end;
-   
-end; // KeyDown
-
-
 // ---------STACK SUBPROGRAMS BLOCK--------//
 
 {
@@ -326,24 +310,70 @@ end; // KeyDown
   - Function "top" returns the last elements of array a with current number of elements equal to size
 }
 
-Procedure push(c :integer; var a: arr; var size: integer);
+Procedure push(c :integer; var a: stack; var size: integer);
 begin
   size := size + 1;
   a[size] := c; 
 end;  
  
-procedure pop(var a: arr; var size: integer);
+Procedure pop(var a: stack; var size: integer);
 begin
   size := size - 1;
 end;
 
-function top(a: arr; size: integer) : integer;
+Function top(a: stack; size: integer) : integer;
 begin
   top := a[size];
 end;
 
 
 // ---------END OF STACK SUBPROGRAMS BLOCK--------//
+
+// Finds the solution (in development...)
+Procedure FindPath(x: integer; y: integer);
+var
+  i,j: integer; // for loop
+  
+begin
+  
+  DeletePlayer(x,y);
+  
+  // Remove track
+  for i:= 1 to width do
+    for j:=1 to height do
+      if GetPixel(i,j) <> GetPixel(indent+1, indent+1)
+      then
+        SetPixel(i,j, clWhite);
+  
+  SetPlayer(2*indent, 2*indent);
+  
+end;
+
+// Actions on tapping keys while playing
+procedure GameKeyDown(key: integer);  
+begin
+   
+   case key of
+     
+     VK_Left: // Move left
+        MoveLeft(PenX, PenY);
+       
+     VK_Right: // Move right
+        MoveRight(PenX, PenY);
+       
+     VK_Up: // Move up
+        MoveUp(PenX, PenY);
+       
+     VK_Down: // Move down
+        MoveDown(PenX, PenY);
+        
+        
+     VK_F5: // Find solution
+        FindPath(PenX, PenY);
+     
+   end;
+   
+end; // KeyDown
 
 
 // Generate maze inside
@@ -360,8 +390,8 @@ Var
   visited: integer; // visited cells counter
   total_cells: integer; // total amount of cells
   
-  stackX: arr; // stack of x coordinates
-  stackY: arr; // stack of y coordinates
+  stackX: stack; // stack of x coordinates
+  stackY: stack; // stack of y coordinates
   
   sizeX: integer; // size of stackX
   sizeY: integer; // size of stackY
@@ -410,7 +440,7 @@ begin
       
       case direction of
         
-        1://,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93,97: // Right
+        1: // Right
           begin
             
             if ((CheckDirection(PenX,PenY, PenX+cell_size,PenY) = true) and (CheckMove(PenX,PenY, PenX+cell_size,PenY) = true))
@@ -427,7 +457,7 @@ begin
             
           end;
           
-        2://,6,10,14,18,22,26,30,34,38,42,46,50,54,58,62,66,70,74,78,82,86,90,94,98: // Left
+        2: // Left
           begin
             
             if ((CheckDirection(PenX,PenY, PenX-cell_size,PenY) = true) and (CheckMove(PenX,PenY, PenX-cell_size,PenY) = true))
@@ -444,7 +474,7 @@ begin
           end;
           
           
-        3://,7,11,15,19,23,27,31,35,39,43,47,51,55,59,63,67,71,75,79,83,87,91,95,99: // Up
+        3: // Up
           begin
             
             if ((CheckDirection(PenX,PenY, PenX,PenY-cell_size) = true) and (CheckMove(PenX,PenY, PenX,PenY-cell_size) = true))
@@ -460,7 +490,7 @@ begin
             
           end;
           
-        4://,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100: // Down
+        4: // Down
           begin
             
             if ((CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true) and (CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true))
@@ -508,8 +538,8 @@ begin
   
   DeletePlayer(PenX, PenY);
   
+  // Draw blue lines everywhere where possible
   i:= indent + cell_size;
-  
   while (i < width - indent) do
   begin
     
@@ -549,7 +579,7 @@ begin
   SetPenColor(maze_color);
   SetPenWidth(line_size);
 
-  // Draw blue lines everywhere where possible
+  // Remove track
   for i:= 1 to width do
     for j:=1 to height do
       if GetPixel(i,j) <> GetPixel(indent+1, indent+1)
@@ -558,26 +588,14 @@ begin
   
 end; // GenerateMaze
   
-Var // Maze  
-  finish_x: integer; // finish X coordinate
-  finish_y: integer; // finish Y coordinate
-  
+
+// Main playing procedure (now not used because OnKeyDown doesn`t work inside function)
+procedure PlayGame(key: integer);
+var
   check_win: boolean; // variable for checking win position
-  
-  time_start: DateTime; // start game time
-  time_finish: DateTime; // end game time
-  
-  
-Begin
- 
-  // Set coordinates of the finish cell
-  finish_x:= width;
-  finish_y:= height-indent-indent-player_size;
-  
-  // Set window
-  SetWindowHeight(height);
-  SetWindowWidth(width);
-  CenterWindow;  
+    
+begin
+  ClearWindow;
   
   GenerateMaze();
   
@@ -585,21 +603,78 @@ Begin
   MoveTo(2*indent, 2*indent);
   SetPlayer(PenX, PenY);
   
-  time_start:= DateTime.Now;
+  check_win:= false;
   
   // Making moves
   while (not check_win) do
   begin
-    
-    // Make a move
-    OnKeyDown:= MakeMove;
-    
+   
+    // Catch key tapping
+    OnKeyDown:= GameKeyDown;
+   
     // Check for win
     check_win:= (PenX = finish_x) and (PenY = finish_y); 
     
-  end;    
+  end; // while
+  
+  
+end;  // PlayGame
+
+Var // Maze      
+  time_start: DateTime; // start game time
+  time_finish: DateTime; // end game time
+  
+  check_win: boolean; // variable for checking win position
+  
+  text_str: string; // string for output text
+  
+Begin
+  
+  // Set window
+  SetWindowHeight(height);
+  SetWindowWidth(width);
+  CenterWindow;  
+  
+  SetFontSize(30);
+  SetFontColor(clLightGreen);
+  TextOut(round(width/2.5), round(height/3.5), 'MAZE');
+  readln();
+  
+  
+  time_start:= DateTime.Now;
+  
+  ClearWindow;
+  
+  GenerateMaze();
+  
+  // Set start position
+  MoveTo(2*indent, 2*indent);
+  SetPlayer(PenX, PenY);
+  
+  check_win:= false;
+  
+  // Making moves
+  while (not check_win) do
+  begin
+   
+    // Catch key tapping
+    OnKeyDown:= GameKeyDown;
+   
+    // Check for win
+    check_win:= (PenX = finish_x) and (PenY = finish_y); 
+    
+  end; // while
   
   time_finish:= DateTime.Now;
-  writeln('Win in ', time_finish-time_start);
+{
+  SetFontSize(14);
+  TextOut(round(width/2.5), round(height/3.5)+8*indent, 'Tap Enter..');
+  SetFontColor(clBlack);
+}
+
+    
+  ClearWindow;
+  SetBrushColor(clWhite);
+  TextOut(round(width/2.5), round(height/3.5), 'WIN');
 
 End.
