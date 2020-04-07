@@ -17,7 +17,7 @@ begin
   
 end;
 
-Procedure PlayGame(x: integer);
+Procedure PlayGame(x,y,mousebutton: integer);
 begin
   
   writeln('MouseDown body');
@@ -28,6 +28,6 @@ end;
 Begin
   
   writeln('It`s main body');
-  OnKeyDown:= PlayGame;
+  OnMouseDown:= PlayGame;
   
 end.
