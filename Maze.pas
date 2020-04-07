@@ -1,29 +1,37 @@
-﻿{
-  TODO:
- 
-    - User maze input
-    - Saving mazes into files
-    - Menu
-    - "Game finished" window
-    - Timer
-    - High scores table
-    - Maze solver
-    
-}
+﻿Program menu;
 
-Program Maze;
-
-Uses
+Uses 
   GraphABC;
-Uses
-  System;
-  
+
 Const
   width = 810; // width of the window
   height = 610; // height of the window
+  indent = 5; // maze borders from window borders | player from cell borders
+  
+  //-------buttons` coordinates begin-------//
+  
+  button_x1 = round((3/7)*width);
+  button_x2 = round((4/7)*width);
+  
+  button1_y1 = round((4/24)*height);
+  button1_y2 = round((6/24)*height);
+  
+  button2_y1 = round((7/24)*height);
+  button2_y2 = round((9/24)*height);
+  
+  button3_y1 = round((10/24)*height);
+  button3_y2 = round((12/24)*height);
+  
+  button_menu_x1 = indent;
+  button_menu_x2 = indent+round((1/7)*width);
+  button_menu_y1 = round((21/24)*height);
+  button_menu_y2 = round((23/24)*height);
+
+  //-------buttons` coordinates end-------//
+  
   cell_size = 20; // size of one square cell
   player_size = 10; // size of square player
-  indent = 5; // maze borders from window borders | player from cell borders
+
   line_size = 3; // width of all lines
   maze_color = clBlue; // color of the maze
   track_color = clYellow; // color of the track
@@ -220,6 +228,18 @@ Begin
   
 end; // DrawTrack
 
+// After-game screen
+Procedure Win();
+Begin
+  
+  ClearWindow;
+  SetFontSize(30);
+  SetFontColor(clLightGreen);
+  SetBrushColor(clWhite);
+  TextOut(round(width/2.325), round((1/24*height)), 'WIN !!!');
+  
+end;
+
 // Make right move
 Procedure MoveRight(x: integer; y: integer);
 var
@@ -237,6 +257,11 @@ Begin
     DrawTrack(x,y, x+cell_size,y);
     SetPlayer(x+cell_size, y);
   end;
+  
+  // Check for win
+  if ((PenX = finish_x) and (PenY = finish_y))
+  then
+    Win();
   
 end; // MoveRight
 
@@ -258,6 +283,11 @@ Begin
     SetPlayer(x-cell_size, y);
   end;
   
+  // Check for win
+  if ((PenX = finish_x) and (PenY = finish_y))
+  then
+    Win();
+  
 end; // MoveLeft
 
 // Make up move
@@ -278,6 +308,11 @@ Begin
     SetPlayer(x, y-cell_size);
   end;
   
+  // Check for win
+  if ((PenX = finish_x) and (PenY = finish_y))
+  then
+    Win();
+  
 end; // MoveUp
 
 // Make down move
@@ -297,6 +332,11 @@ Begin
     DrawTrack(x,y, x,y+cell_size);
     SetPlayer(x, y+cell_size);
   end;
+  
+  // Check for win
+  if ((PenX = finish_x) and (PenY = finish_y))
+  then
+    Win();
   
 end; // MoveDown
 
@@ -373,8 +413,7 @@ begin
      
    end;
    
-end; // KeyDown
-
+end; // GameKeyDown
 
 // Generate maze inside
 procedure GenerateMaze();
@@ -588,9 +627,8 @@ begin
   
 end; // GenerateMaze
   
-
 // Main playing procedure (now not used because OnKeyDown doesn`t work inside function)
-procedure PlayGame(key: integer);
+procedure PlayGame();
 var
   check_win: boolean; // variable for checking win position
     
@@ -606,28 +644,127 @@ begin
   check_win:= false;
   
   // Making moves
-  while (not check_win) do
-  begin
    
     // Catch key tapping
     OnKeyDown:= GameKeyDown;
    
     // Check for win
     check_win:= (PenX = finish_x) and (PenY = finish_y); 
-    
-  end; // while
+    if (check_win)
+    then
+      Win();  
   
   
 end;  // PlayGame
 
-Var // Maze      
-  time_start: DateTime; // start game time
-  time_finish: DateTime; // end game time
+// Draws formated button in rectangle with x1,y1-x2,y2 coordinates and text s
+Procedure MakeSpecialButton(x1,y1,x2,y2: integer; s: string);
+var
+  current_pen_color: color;
+  current_pen_width: integer;
+  current_font_size: integer;
+  current_font_color: color;
   
-  check_win: boolean; // variable for checking win position
+begin
   
-  text_str: string; // string for output text
+  current_pen_color:= PenColor;
+  current_pen_width:= PenWidth;
+  current_font_size:= FontSize;
+  current_font_color:= FontColor;
   
+  SetPenWidth(3);
+  SetPenColor(clLightBlue);
+  SetFontSize(22);
+  SetFontColor(clLightBlue);
+  
+  Rectangle(x1, y1, x2, y2);
+  TextOut(x1+2*indent, y1+2*indent, s);
+  
+  SetPenWidth(current_pen_width);
+  SetPenColor(current_pen_color);
+  SetFontSize(current_font_size);
+  SetFontColor(current_font_color);
+  
+end;
+
+// Action for button1
+Procedure Action1();
+Begin
+  
+  ClearWindow;
+  PlayGame();
+  
+end;
+
+// Action for button2
+Procedure Action2();
+Begin
+  
+  ClearWindow;
+  writeln('Action2');
+  
+end;
+
+// Action for button3
+Procedure Action3();
+Begin
+  
+  ClearWindow;
+  writeln('Action3');
+  
+end;
+
+// Catch mouse down inside menu
+Procedure MenuMouseDown(x, y, mousebutton: integer);
+begin
+  
+  if ((x > button_x1) and (x < button_x2)) 
+  then
+  begin
+    
+    if ((y > button1_y1) and (y < button1_y2))
+    then
+      Action1();
+    
+    if ((y > button2_y1) and (y < button2_y2))
+    then
+      Action2();
+    
+    if ((y > button3_y1) and (y < button3_y2))
+    then
+      Action3();
+    
+  end;
+  
+end;
+
+// Displays menu
+Procedure MainMenu();
+begin
+  
+  ClearWindow;
+  
+  SetFontSize(30);
+  SetFontColor(clLightGreen);
+  TextOut(round(width/2.325), round((1/24*height)), 'MENU');
+  
+  
+  MakeSpecialButton(button_x1, button1_y1, 
+                    button_x2, button1_y2, '  Start');
+                    
+  MakeSpecialButton(button_x1, button2_y1, 
+                    button_x2, button2_y2, 'Action2');
+  
+  MakeSpecialButton(button_x1, button3_y1, 
+                    button_x2, button3_y2, 'Action3');
+  
+  SetFontColor(clRed);
+  OnMouseDown:= MenuMouseDown;
+  
+  
+end;
+
+
 Begin
   
   // Set window
@@ -635,46 +772,6 @@ Begin
   SetWindowWidth(width);
   CenterWindow;  
   
-  SetFontSize(30);
-  SetFontColor(clLightGreen);
-  TextOut(round(width/2.5), round(height/3.5), 'MAZE');
-  readln();
+  MainMenu();
   
-  
-  time_start:= DateTime.Now;
-  
-  ClearWindow;
-  
-  GenerateMaze();
-  
-  // Set start position
-  MoveTo(2*indent, 2*indent);
-  SetPlayer(PenX, PenY);
-  
-  check_win:= false;
-  
-  // Making moves
-  while (not check_win) do
-  begin
-   
-    // Catch key tapping
-    OnKeyDown:= GameKeyDown;
-   
-    // Check for win
-    check_win:= (PenX = finish_x) and (PenY = finish_y); 
-    
-  end; // while
-  
-  time_finish:= DateTime.Now;
-{
-  SetFontSize(14);
-  TextOut(round(width/2.5), round(height/3.5)+8*indent, 'Tap Enter..');
-  SetFontColor(clBlack);
-}
-
-    
-  ClearWindow;
-  SetBrushColor(clWhite);
-  TextOut(round(width/2.5), round(height/3.5), 'WIN');
-
-End.
+end.
