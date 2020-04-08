@@ -1,4 +1,4 @@
-﻿Program menu;
+﻿Program Maze;
 
 Uses 
   GraphABC;
@@ -10,8 +10,8 @@ Const
   
   //-------buttons` coordinates begin-------//
   
-  button_x1 = round((3/7)*width);
-  button_x2 = round((4/7)*width);
+  button_x1 = round((5/14)*width);
+  button_x2 = round((9/14)*width);
   
   button1_y1 = round((4/24)*height);
   button1_y2 = round((6/24)*height);
@@ -109,6 +109,80 @@ Begin
   SetBrushColor(current_brush_color);
   
 end; // DeletePlayer
+
+Procedure RemoveTrack();
+Var
+  i, j: integer; // for loop
+  
+Begin  
+  i:= 2*indent;
+  j:= 2*indent;
+  
+  SetPenColor(clWhite);
+  SetBrushColor(clWhite);
+  
+  // SetPixel(indent + 1, indent + 1, clYellow);
+ { 
+  while (i <> width - 2*indent - player_size) do
+  begin
+    while (j <> height - 2*indent - player_size) do
+    begin
+      MoveTo(i, j);
+      if (GetPixel(i,j) = GetPixel(indent + 1, indent + 1))
+      then
+        Rectangle(i,j, i+player_size,j+player_size);
+      j:= j + player_size;
+    
+    end;
+    i:= i + player_size;
+    
+  end;    
+  }
+  
+  // Remove track
+  for i:= 1 to width do
+    for j:=1 to height do
+      if GetPixel(i,j) <> GetPixel(indent+1, indent+1)
+      then
+        SetPixel(i,j, clWhite);
+end;
+
+Procedure RemoveOrangeTrack();
+Var
+  i, j: integer; // for loop
+  
+Begin  
+  i:= 2*indent;
+  j:= 2*indent;
+  
+  SetPenColor(clWhite);
+  SetBrushColor(clWhite);
+  
+  // SetPixel(indent + 1, indent + 1, clYellow);
+ { 
+  while (i <> width - 2*indent - player_size) do
+  begin
+    while (j <> height - 2*indent - player_size) do
+    begin
+      MoveTo(i, j);
+      if (GetPixel(i,j) = GetPixel(indent + 1, indent + 1))
+      then
+        Rectangle(i,j, i+player_size,j+player_size);
+      j:= j + player_size;
+    
+    end;
+    i:= i + player_size;
+    
+  end;    
+  }
+  
+  // Remove track
+  for i:= 1 to width do
+    for j:=1 to height do
+      if (GetPixel(i,j) = clOrange)
+      then
+        SetPixel(i,j, clWhite);
+end;
 
 // Function for checking if a move is possible
 Function CheckMove(current_x: integer; current_y: integer; target_x: integer; target_y: integer): boolean;
@@ -227,6 +301,45 @@ Begin
   SetBrushColor(current_brush_color);
   
 end; // DrawTrack
+
+// Draw second player track
+Procedure DrawOrangeTrack(current_x: integer; current_y: integer; target_x: integer; target_y: integer);
+Var
+  current_pen_color: Color;
+  current_width: integer;
+  current_brush_color: Color;
+  
+Begin
+  
+  // Remember settings
+  current_pen_color:= PenColor;
+  current_width:= PenWidth;
+  current_brush_color:= BrushColor;
+  
+  // Draw rectangle
+  MoveTo(current_x, current_y);
+  SetPenColor(clOrange);
+  SetPenWidth(line_size);
+  DrawRectangle(current_x,current_y, current_x+player_size,current_y+player_size);
+  MoveTo(current_x,current_y);
+  
+  // Fill rectangle
+  SetBrushColor(clOrange);
+  FillRectangle(current_x,current_y, current_x+player_size,current_y+player_size);
+  
+  // Draw line
+  SetPenColor(clOrange);
+  SetPenWidth(player_size+line_size-1);
+  MoveTo(round(current_x+(player_size/2)), round(current_y+(player_size/2)));
+  LineTo(round(target_x+(player_size/2)), round(target_y+(player_size/2)));
+  
+  // Get settings back
+  MoveTo(current_x, current_y);
+  SetPenColor(current_pen_color);
+  SetPenWidth(current_width);
+  SetBrushColor(current_brush_color);
+  
+end; // DrawOrangeTrack
 
 // After-game screen
 Procedure Win();
@@ -370,22 +483,170 @@ end;
 // ---------END OF STACK SUBPROGRAMS BLOCK--------//
 
 // Finds the solution (in development...)
+// Try to follow right-ahead-left-back
 Procedure FindPath(x: integer; y: integer);
+
+Label
+  point1;
+Label
+  point2;
+  
 var
   i,j: integer; // for loop
+  
+  direction: integer; // random direction choose variable
+  check_win: boolean;
+  
+  stackX: stack; // stack of x coordinates
+  stackY: stack; // stack of y coordinates
+  
+  sizeX: integer; // size of stackX
+  sizeY: integer; // size of stackY
   
 begin
   
   DeletePlayer(x,y);
   
   // Remove track
-  for i:= 1 to width do
-    for j:=1 to height do
-      if GetPixel(i,j) <> GetPixel(indent+1, indent+1)
-      then
-        SetPixel(i,j, clWhite);
+  RemoveTrack();
   
-  SetPlayer(2*indent, 2*indent);
+  MoveTo(2*indent, 2*indent);
+  
+  SetPlayer(PenX, PenY);
+  
+  sizeX:= 0;
+  sizeY:= 0;
+  
+  push(PenX, stackX, sizeX);
+  push(PenY, stackY, sizeY);
+  
+  check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
+  
+  while (not (check_win)) do
+  begin
+    
+    point1:
+    // Check if there is a free neighboor
+    while  (((CheckDirection(PenX,PenY, PenX+cell_size,PenY) = true) and (CheckMove(PenX,PenY, PenX+cell_size,PenY) = true)) 
+         or ((CheckDirection(PenX,PenY, PenX-cell_size,PenY) = true) and (CheckMove(PenX,PenY, PenX-cell_size,PenY) = true)) 
+         or ((CheckDirection(PenX,PenY, PenX,PenY-cell_size) = true) and (CheckMove(PenX,PenY, PenX,PenY-cell_size) = true)) 
+         or ((CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true) and (CheckMove(PenX,PenY, PenX,PenY+cell_size) = true))) 
+    do
+    begin
+    
+      randomize;
+      direction:= (PABCSystem.random(3472)*PABCSystem.Random(8321)) mod 4 + 1;
+      
+      case direction of
+        
+        1: // Right
+          begin
+            
+            if ((CheckDirection(PenX,PenY, PenX+cell_size,PenY) = true) and (CheckMove(PenX,PenY, PenX+cell_size,PenY) = true))
+            then
+            begin
+              
+              MoveRight(PenX, PenY);
+              check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
+              
+              push(PenX, stackX, sizeX);
+              push(PenY, stackY, sizeY);
+
+            end;
+            
+          end;
+          
+        2: // Left
+          begin
+            
+            if ((CheckDirection(PenX,PenY, PenX-cell_size,PenY) = true) and (CheckMove(PenX,PenY, PenX-cell_size,PenY) = true))
+            then
+            begin
+              MoveLeft(PenX, PenY);
+              check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
+              
+              push(PenX, stackX, sizeX);
+              push(PenY, stackY, sizeY);
+              
+            end;
+            
+          end;
+          
+          
+        3: // Up
+          begin
+            
+            if ((CheckDirection(PenX,PenY, PenX,PenY-cell_size) = true) and (CheckMove(PenX,PenY, PenX,PenY-cell_size) = true))
+            then
+            begin
+              MoveUp(PenX, PenY);
+              check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
+ 
+              push(PenX, stackX, sizeX);
+              push(PenY, stackY, sizeY);
+              
+            end;
+            
+          end;
+          
+        4: // Down
+          begin
+            
+            if ((CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true) and (CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true))
+            then
+            begin
+              MoveDown(PenX, PenY);
+              check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
+              
+              push(PenX, stackX, sizeX);
+              push(PenY, stackY, sizeY); 
+              
+            end;
+            
+          end;
+        
+      end; // case
+    
+    check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
+    
+    if (check_win)
+    then
+      goto point2;
+    
+    end; // while
+
+      if (not (check_win))
+      then
+      begin
+        // If there is no a free neighboor then hard go to previous cell and repeat the condition
+        DeletePlayer(top(StackX,sizeX), top(StackY, sizeY));
+        
+        SetPenColor(track_color);
+        SetPenWidth(line_size);
+        DrawRectangle(top(StackX,sizeX),top(StackY, sizeY), top(StackX,sizeX)+player_size,top(StackY, sizeY)+player_size);
+        SetBrushColor(track_color);
+        FillRectangle(top(StackX,sizeX),top(StackY, sizeY), top(StackX,sizeX)+player_size,top(StackY, sizeY)+player_size);
+        SetPenColor(maze_color);
+        
+        MoveTo(top(StackX,sizeX), top(StackY, sizeY)); 
+        
+        pop(stackX, sizeX);
+        pop(stackY, sizeY);
+        
+        DrawOrangeTrack(PenX,PenY, top(StackX,sizeX), top(StackY, sizeY));
+        
+        MoveTo(top(StackX,sizeX), top(StackY, sizeY));      
+        
+        SetPlayer(top(StackX,sizeX), top(StackY, sizeY));
+        
+        goto point1;
+      end; // if
+
+      
+  end; // while
+  point2:
+  
+  RemoveOrangeTrack();
   
 end;
 
@@ -617,17 +878,19 @@ begin
   LineTo(width-indent, height-cell_size-indent);
   SetPenColor(maze_color);
   SetPenWidth(line_size);
-
+  
+  RemoveTrack();
+{
   // Remove track
   for i:= 1 to width do
     for j:=1 to height do
       if GetPixel(i,j) <> GetPixel(indent+1, indent+1)
       then
         SetPixel(i,j, clWhite);
-  
+ } 
 end; // GenerateMaze
   
-// Main playing procedure (now not used because OnKeyDown doesn`t work inside function)
+// Main playing procedure
 procedure PlayGame();
 var
   check_win: boolean; // variable for checking win position
@@ -656,6 +919,14 @@ begin
   
   
 end;  // PlayGame
+
+// Desribes rules of the game
+procedure Rules();
+begin
+  
+  writeln('Rules');
+  
+end;
 
 // Draws formated button in rectangle with x1,y1-x2,y2 coordinates and text s
 Procedure MakeSpecialButton(x1,y1,x2,y2: integer; s: string);
@@ -701,7 +972,7 @@ Procedure Action2();
 Begin
   
   ClearWindow;
-  writeln('Action2');
+  Rules();
   
 end;
 
@@ -746,17 +1017,17 @@ begin
   
   SetFontSize(30);
   SetFontColor(clLightGreen);
-  TextOut(round(width/2.325), round((1/24*height)), 'MENU');
+  TextOut(round(width/2.325), round((1/24*height)), 'MAZE');
   
   
   MakeSpecialButton(button_x1, button1_y1, 
-                    button_x2, button1_y2, '  Start');
+                    button_x2, button1_y2, '         Start');
                     
   MakeSpecialButton(button_x1, button2_y1, 
-                    button_x2, button2_y2, 'Action2');
+                    button_x2, button2_y2, '    How to play');
   
   MakeSpecialButton(button_x1, button3_y1, 
-                    button_x2, button3_y2, 'Action3');
+                    button_x2, button3_y2, '    High scores');
   
   SetFontColor(clRed);
   OnMouseDown:= MenuMouseDown;
