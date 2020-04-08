@@ -110,6 +110,7 @@ Begin
   
 end; // DeletePlayer
 
+// Removes yellow track
 Procedure RemoveTrack();
 Var
   i, j: integer; // for loop
@@ -120,33 +121,17 @@ Begin
   
   SetPenColor(clWhite);
   SetBrushColor(clWhite);
-  
-  // SetPixel(indent + 1, indent + 1, clYellow);
- { 
-  while (i <> width - 2*indent - player_size) do
-  begin
-    while (j <> height - 2*indent - player_size) do
-    begin
-      MoveTo(i, j);
-      if (GetPixel(i,j) = GetPixel(indent + 1, indent + 1))
-      then
-        Rectangle(i,j, i+player_size,j+player_size);
-      j:= j + player_size;
-    
-    end;
-    i:= i + player_size;
-    
-  end;    
-  }
-  
+ 
   // Remove track
   for i:= 1 to width do
     for j:=1 to height do
       if GetPixel(i,j) <> GetPixel(indent+1, indent+1)
       then
         SetPixel(i,j, clWhite);
+  
 end;
 
+// Removes orange track
 Procedure RemoveOrangeTrack();
 Var
   i, j: integer; // for loop
@@ -157,25 +142,7 @@ Begin
   
   SetPenColor(clWhite);
   SetBrushColor(clWhite);
-  
-  // SetPixel(indent + 1, indent + 1, clYellow);
- { 
-  while (i <> width - 2*indent - player_size) do
-  begin
-    while (j <> height - 2*indent - player_size) do
-    begin
-      MoveTo(i, j);
-      if (GetPixel(i,j) = GetPixel(indent + 1, indent + 1))
-      then
-        Rectangle(i,j, i+player_size,j+player_size);
-      j:= j + player_size;
-    
-    end;
-    i:= i + player_size;
-    
-  end;    
-  }
-  
+   
   // Remove track
   for i:= 1 to width do
     for j:=1 to height do
@@ -483,15 +450,12 @@ end;
 
 // ---------END OF STACK SUBPROGRAMS BLOCK--------//
 
-// Finds the solution (in development...)
-// Try to follow right-ahead-left-back
+// Finds the solution
 Procedure FindPath(x: integer; y: integer);
 
 Label
   point1;
-Label
-  point2;
-  
+
 var
   i,j: integer; // for loop
   
@@ -548,7 +512,6 @@ begin
             begin
               
               MoveRight(PenX, PenY);
-              check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
               
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY);
@@ -564,7 +527,6 @@ begin
             then
             begin
               MoveLeft(PenX, PenY);
-              check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
               
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY);
@@ -581,7 +543,6 @@ begin
             then
             begin
               MoveUp(PenX, PenY);
-              check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
  
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY);
@@ -597,7 +558,6 @@ begin
             then
             begin
               MoveDown(PenX, PenY);
-              check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
               
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY); 
@@ -612,7 +572,7 @@ begin
     
     if (check_win)
     then
-      goto point2;
+      break;
     
     end; // while
 
@@ -645,7 +605,6 @@ begin
 
       
   end; // while
-  point2:
   
   RemoveOrangeTrack();
   
@@ -682,8 +641,6 @@ procedure GenerateMaze();
 
 Label
   point1;
-Label
-  point2;
   
 Var
   i,j: integer; // for loop
@@ -881,14 +838,7 @@ begin
   SetPenWidth(line_size);
   
   RemoveTrack();
-{
-  // Remove track
-  for i:= 1 to width do
-    for j:=1 to height do
-      if GetPixel(i,j) <> GetPixel(indent+1, indent+1)
-      then
-        SetPixel(i,j, clWhite);
- } 
+
 end; // GenerateMaze
   
 // Main playing procedure
@@ -921,7 +871,7 @@ begin
   
 end;  // PlayGame
 
-// Desribes rules of the game
+// Desribes the rules of the game
 procedure Rules();
 begin
   
