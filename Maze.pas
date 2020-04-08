@@ -224,6 +224,7 @@ Function CheckDirection(current_x: integer; current_y: integer; target_x: intege
 begin
   
     SetPixel(1,1, track_color);
+    SetPixel(1,2, clOrange);
     CheckDirection:= false;
     
     if ((target_x >= width) or (target_y >= height) or (target_x <= 0) or (target_y <= 0))
@@ -235,28 +236,28 @@ begin
     // Check if move left
     if (current_y = target_y) and (current_x > target_x)
     then
-      if (GetPixel(1, 1) <> GetPixel(target_x+1, target_y))
+      if ((GetPixel(1, 1) <> GetPixel(target_x+1, target_y)) and (GetPixel(1, 2) <> GetPixel(target_x+1, target_y)))
       then
         CheckDirection:= true;
       
     // Check if move right
     if (current_y = target_y) and (current_x < target_x)
     then
-      if (GetPixel(1, 1) <> GetPixel(target_x+1, target_y))
+      if ((GetPixel(1, 1) <> GetPixel(target_x+1, target_y)) and (GetPixel(1, 2) <> GetPixel(target_x+1, target_y)))
       then
         CheckDirection:= true;    
       
     // Check if move up
     if (current_y > target_y) and (current_x = target_x)
     then
-      if (GetPixel(1, 1) <> GetPixel(target_x, target_y+1))
+      if ((GetPixel(1, 1) <> GetPixel(target_x, target_y+1)) and (GetPixel(1, 2) <> GetPixel(target_x, target_y+1)))
       then
         CheckDirection:= true;    
       
     // Check if move down
     if (current_y < target_y) and (current_x = target_x)
     then
-      if (GetPixel(1, 1) <> GetPixel(target_x, target_y+1))
+      if ((GetPixel(1, 1) <> GetPixel(target_x, target_y+1)) and (GetPixel(1, 2) <> GetPixel(target_x, target_y+1)))
       then
         CheckDirection:= true;    
    end; // else
@@ -839,7 +840,7 @@ begin
   DeletePlayer(PenX, PenY);
   
   // Draw blue lines everywhere where possible
-  i:= indent + cell_size;
+  i:= indent {+ cell_size};
   while (i < width - indent) do
   begin
     
