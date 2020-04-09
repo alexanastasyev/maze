@@ -10,8 +10,9 @@ Const
   
   //-------buttons` coordinates begin-------//
   
-  button_x1 = round((5/14)*width);
-  button_x2 = round((9/14)*width);
+  button_x1 = width + 10;
+  button_x2 = width + 180;
+  
   
   button1_y1 = round((4/24)*height);
   button1_y2 = round((6/24)*height);
@@ -21,6 +22,9 @@ Const
   
   button3_y1 = round((10/24)*height);
   button3_y2 = round((12/24)*height);
+  
+  button4_y1 = round((13/24)*height);
+  button4_y2 = round((15/24)*height);
   
   button_menu_x1 = indent;
   button_menu_x2 = indent+round((1/7)*width);
@@ -43,6 +47,67 @@ Const
 
 Type
   stack = array[1..10000] of integer;
+
+// Draws formated button in rectangle with x1,y1-x2,y2 coordinates and text s
+Procedure MakeSpecialButton(x1,y1,x2,y2: integer; s: string);
+var
+  current_pen_color: color;
+  current_pen_width: integer;
+  current_font_size: integer;
+  current_font_color: color;
+  
+begin
+  
+  current_pen_color:= PenColor;
+  current_pen_width:= PenWidth;
+  current_font_size:= FontSize;
+  current_font_color:= FontColor;
+  
+  SetPenWidth(3);
+  SetPenColor(clLightBlue);
+  SetFontSize(22);
+  SetFontColor(clLightBlue);
+  
+  Rectangle(x1, y1, x2, y2);
+  TextOut(x1+2*indent, y1+2*indent, s);
+  
+  SetPenWidth(current_pen_width);
+  SetPenColor(current_pen_color);
+  SetFontSize(current_font_size);
+  SetFontColor(current_font_color);
+  
+end;
+
+Procedure DrawButtons();
+var
+  current_size: integer;
+  current_color: Color;
+  
+begin
+  current_size:= FontSize;
+  current_color:= FontColor;
+  
+  SetFontSize(30);
+  SetFontColor(clLightGreen);
+  TextOut(width + 30, round((1/24*height)), 'MAZE');
+  
+  
+  MakeSpecialButton(button_x1, button1_y1, 
+                    button_x2, button1_y2, '     Start');
+                    
+  MakeSpecialButton(button_x1, button2_y1, 
+                    button_x2, button2_y2, 'How to play');
+  
+  MakeSpecialButton(button_x1, button3_y1, 
+                    button_x2, button3_y2, 'High scores');
+                    
+  MakeSpecialButton(button_x1, button4_y1, 
+                    button_x2, button4_y2, '      Exit');
+  
+  SetFontSize(current_size);
+  SetFontColor(current_color);
+  
+end;
 
 // Set player to position with x,y - top left cornner  
 Procedure SetPlayer(x: integer; y: integer);
@@ -318,6 +383,7 @@ Begin
   SetFontColor(clLightGreen);
   SetBrushColor(clWhite);
   TextOut(round(width/2.325), round((1/24*height)), 'WIN !!!');
+  DrawButtons();
   
 end;
 
@@ -855,6 +921,8 @@ begin
   MoveTo(2*indent, 2*indent);
   SetPlayer(PenX, PenY);
   
+  DrawButtons();
+  
   check_win:= false;
   
   // Making moves
@@ -875,39 +943,15 @@ end;  // PlayGame
 procedure Rules();
 begin
   
-  writeln('Rules');
+  ClearWindow;
+  SetFontSize(30);
+  SetFontColor(clRed);
+  TextOut(1,1,'Rules');
+  DrawButtons();
   
 end;
 
-// Draws formated button in rectangle with x1,y1-x2,y2 coordinates and text s
-Procedure MakeSpecialButton(x1,y1,x2,y2: integer; s: string);
-var
-  current_pen_color: color;
-  current_pen_width: integer;
-  current_font_size: integer;
-  current_font_color: color;
-  
-begin
-  
-  current_pen_color:= PenColor;
-  current_pen_width:= PenWidth;
-  current_font_size:= FontSize;
-  current_font_color:= FontColor;
-  
-  SetPenWidth(3);
-  SetPenColor(clLightBlue);
-  SetFontSize(22);
-  SetFontColor(clLightBlue);
-  
-  Rectangle(x1, y1, x2, y2);
-  TextOut(x1+2*indent, y1+2*indent, s);
-  
-  SetPenWidth(current_pen_width);
-  SetPenColor(current_pen_color);
-  SetFontSize(current_font_size);
-  SetFontColor(current_font_color);
-  
-end;
+
 
 // Action for button1
 Procedure Action1();
@@ -932,7 +976,17 @@ Procedure Action3();
 Begin
   
   ClearWindow;
-  writeln('Action3');
+  SetFontSize(30);
+  SetFontColor(clRed);
+  TextOut(1,1,'High scores');
+  DrawButtons();
+  
+end;
+
+// Action for button4
+Procedure Action4();
+begin
+  CloseWindow();  
   
 end;
 
@@ -944,17 +998,21 @@ begin
   then
   begin
     
-    if ((y > button1_y1) and (y < button1_y2))
+    if ((y > button1_y1) and (y < button1_y2)) // Start
     then
       Action1();
     
-    if ((y > button2_y1) and (y < button2_y2))
+    if ((y > button2_y1) and (y < button2_y2)) // How to play
     then
       Action2();
     
-    if ((y > button3_y1) and (y < button3_y2))
+    if ((y > button3_y1) and (y < button3_y2)) // High scores
     then
       Action3();
+    
+    if ((y > button4_y1) and (y < button4_y2)) // Exit
+    then
+      Action4();
     
   end;
   
@@ -965,21 +1023,25 @@ Procedure MainMenu();
 begin
   
   ClearWindow;
-  
+  DrawButtons();
+  {
   SetFontSize(30);
   SetFontColor(clLightGreen);
-  TextOut(round(width/2.325), round((1/24*height)), 'MAZE');
+  TextOut(width + 30, round((1/24*height)), 'MAZE');
   
   
   MakeSpecialButton(button_x1, button1_y1, 
-                    button_x2, button1_y2, '         Start');
+                    button_x2, button1_y2, '     Start');
                     
   MakeSpecialButton(button_x1, button2_y1, 
-                    button_x2, button2_y2, '    How to play');
+                    button_x2, button2_y2, 'How to play');
   
   MakeSpecialButton(button_x1, button3_y1, 
-                    button_x2, button3_y2, '    High scores');
-  
+                    button_x2, button3_y2, 'High scores');
+                    
+  MakeSpecialButton(button_x1, button4_y1, 
+                    button_x2, button4_y2, '      Exit');                  
+  }
   SetFontColor(clRed);
   OnMouseDown:= MenuMouseDown;
   
@@ -991,7 +1053,7 @@ Begin
   
   // Set window
   SetWindowHeight(height);
-  SetWindowWidth(width);
+  SetWindowWidth(width+200);
   CenterWindow;  
   
   MainMenu();
