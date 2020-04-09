@@ -89,7 +89,7 @@ begin
   
   SetFontSize(30);
   SetFontColor(clLightGreen);
-  TextOut(width + 30, round((1/24*height)), 'MAZE');
+  TextOut(width + 30, round((1/24*height)), 'MENU');
   
   
   MakeSpecialButton(button_x1, button1_y1, 
@@ -379,10 +379,9 @@ Procedure Win();
 Begin
   
   ClearWindow;
-  SetFontSize(30);
-  SetFontColor(clLightGreen);
-  SetBrushColor(clWhite);
-  TextOut(round(width/2.325), round((1/24*height)), 'WIN !!!');
+  SetFontColor(clGray);
+  SetFontSize(100);
+  TextOut(round(width/3), round(height/3), 'WIN !!!');
   DrawButtons();
   
 end;
@@ -1023,26 +1022,13 @@ Procedure MainMenu();
 begin
   
   ClearWindow;
+  
+  SetFontColor(clGray);
+  SetFontSize(100);
+  TextOut(round(width/3), round(height/3), 'MAZE');
+  
   DrawButtons();
-  {
-  SetFontSize(30);
-  SetFontColor(clLightGreen);
-  TextOut(width + 30, round((1/24*height)), 'MAZE');
   
-  
-  MakeSpecialButton(button_x1, button1_y1, 
-                    button_x2, button1_y2, '     Start');
-                    
-  MakeSpecialButton(button_x1, button2_y1, 
-                    button_x2, button2_y2, 'How to play');
-  
-  MakeSpecialButton(button_x1, button3_y1, 
-                    button_x2, button3_y2, 'High scores');
-                    
-  MakeSpecialButton(button_x1, button4_y1, 
-                    button_x2, button4_y2, '      Exit');                  
-  }
-  SetFontColor(clRed);
   OnMouseDown:= MenuMouseDown;
   
   
