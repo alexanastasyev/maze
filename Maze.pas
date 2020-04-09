@@ -26,10 +26,8 @@ Const
   button4_y1 = round((13/24)*height);
   button4_y2 = round((15/24)*height);
   
-  button_menu_x1 = indent;
-  button_menu_x2 = indent+round((1/7)*width);
-  button_menu_y1 = round((21/24)*height);
-  button_menu_y2 = round((23/24)*height);
+  button_menu_y1 = round((1/24)*height);
+  button_menu_y2 = round((3/24)*height);
 
   //-------buttons` coordinates end-------//
   
@@ -989,6 +987,17 @@ begin
   
 end;
 
+Procedure Action0();
+begin
+  
+  ClearWindow;
+  SetFontColor(clGray);
+  SetFontSize(100);
+  TextOut(round(width/3), round(height/3), 'MAZE');
+  DrawButtons();
+  
+end;
+
 // Catch mouse down inside menu
 Procedure MenuMouseDown(x, y, mousebutton: integer);
 begin
@@ -1012,6 +1021,10 @@ begin
     if ((y > button4_y1) and (y < button4_y2)) // Exit
     then
       Action4();
+    
+    if ((y > button_menu_y1) and (y < button_menu_y2)) // Menu
+    then
+      Action0();
     
   end;
   
