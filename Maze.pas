@@ -2,6 +2,8 @@
 
 Uses 
   GraphABC;
+Uses
+  System;
 
 Const
   width = 810; // width of the window
@@ -104,6 +106,17 @@ begin
   
   SetFontSize(current_size);
   SetFontColor(current_color);
+  
+end;
+
+Procedure StartScreen();
+begin
+  SetFontColor(clGray);
+  SetFontSize(100);
+  TextOut(round(width/3), round(height/3), 'MAZE');
+  SetFontSize(20);
+  TextOut(round(width/3)+3, round(height/3) + 140, 'Created by Alexey Anastasyev');
+  DrawButtons();
   
 end;
 
@@ -401,12 +414,7 @@ Begin
     DrawTrack(x,y, x+cell_size,y);
     SetPlayer(x+cell_size, y);
   end;
-  
-  // Check for win
-  if ((PenX = finish_x) and (PenY = finish_y))
-  then
-    Win();
-  
+    
 end; // MoveRight
 
 // Make left move
@@ -426,12 +434,7 @@ Begin
     DrawTrack(x,y, x-cell_size,y);
     SetPlayer(x-cell_size, y);
   end;
-  
-  // Check for win
-  if ((PenX = finish_x) and (PenY = finish_y))
-  then
-    Win();
-  
+    
 end; // MoveLeft
 
 // Make up move
@@ -452,11 +455,6 @@ Begin
     SetPlayer(x, y-cell_size);
   end;
   
-  // Check for win
-  if ((PenX = finish_x) and (PenY = finish_y))
-  then
-    Win();
-  
 end; // MoveUp
 
 // Make down move
@@ -476,11 +474,6 @@ Begin
     DrawTrack(x,y, x,y+cell_size);
     SetPlayer(x, y+cell_size);
   end;
-  
-  // Check for win
-  if ((PenX = finish_x) and (PenY = finish_y))
-  then
-    Win();
   
 end; // MoveDown
 
@@ -520,7 +513,6 @@ Label
   point1;
 
 var
-  i,j: integer; // for loop
   
   direction: integer; // random direction choose variable
   check_win: boolean;
@@ -696,6 +688,11 @@ begin
         FindPath(PenX, PenY);
      
    end;
+   
+   // Check for win
+  if ((PenX = finish_x) and (PenY = finish_y))
+  then
+    Win();
    
 end; // GameKeyDown
 
@@ -912,13 +909,12 @@ var
 begin
   ClearWindow;
   
+  DrawButtons();
   GenerateMaze();
   
   // Set start position
   MoveTo(2*indent, 2*indent);
   SetPlayer(PenX, PenY);
-  
-  DrawButtons();
   
   check_win:= false;
   
@@ -931,8 +927,7 @@ begin
     check_win:= (PenX = finish_x) and (PenY = finish_y); 
     if (check_win)
     then
-      Win();  
-  
+      Win();
   
 end;  // PlayGame
 
@@ -947,8 +942,6 @@ begin
   DrawButtons();
   
 end;
-
-
 
 // Action for button1
 Procedure Action1();
@@ -991,10 +984,7 @@ Procedure Action0();
 begin
   
   ClearWindow;
-  SetFontColor(clGray);
-  SetFontSize(100);
-  TextOut(round(width/3), round(height/3), 'MAZE');
-  DrawButtons();
+  StartScreen();
   
 end;
 
@@ -1035,13 +1025,7 @@ Procedure MainMenu();
 begin
   
   ClearWindow;
-  
-  SetFontColor(clGray);
-  SetFontSize(100);
-  TextOut(round(width/3), round(height/3), 'MAZE');
-  
-  DrawButtons();
-  
+  StartScreen();  
   OnMouseDown:= MenuMouseDown;
   
   
