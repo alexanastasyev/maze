@@ -48,6 +48,9 @@ Const
 Type
   stack = array[1..10000] of integer;
 
+Var
+  counter: integer;
+  
 // Draws formated button in rectangle with x1,y1-x2,y2 coordinates and text s
 Procedure MakeSpecialButton(x1,y1,x2,y2: integer; s: string);
 var
@@ -78,6 +81,7 @@ begin
   
 end;
 
+// Draws menu buttons
 Procedure DrawButtons();
 var
   current_size: integer;
@@ -109,6 +113,7 @@ begin
   
 end;
 
+// 'MAZE' and creator name
 Procedure StartScreen();
 begin
   SetFontColor(clGray);
@@ -387,12 +392,25 @@ end; // DrawOrangeTrack
 
 // After-game screen
 Procedure Win();
+Var
+  str: string;
+
 Begin
   
   ClearWindow;
   SetFontColor(clGray);
   SetFontSize(100);
   TextOut(round(width/3), round(height/3), 'WIN !!!');
+  SetFontSize(20);
+  counter:= counter - 1;
+  if (counter > 100000)
+  then
+    str:= 'You didn`t solve the maze by yourself'
+            //You solved the maze in 555 moves
+  else
+    str:= '   You solved the maze in ' + IntToStr(counter) + ' moves';
+  
+  TextOut(round(width/3)-20, round(height/3) + 140, str);
   DrawButtons();
   
 end;
@@ -413,6 +431,7 @@ Begin
     DeletePlayer(x,y);
     DrawTrack(x,y, x+cell_size,y);
     SetPlayer(x+cell_size, y);
+    counter:= counter + 1;
   end;
     
 end; // MoveRight
@@ -433,6 +452,7 @@ Begin
     DeletePlayer(x,y);
     DrawTrack(x,y, x-cell_size,y);
     SetPlayer(x-cell_size, y);
+    counter:= counter + 1;
   end;
     
 end; // MoveLeft
@@ -453,6 +473,7 @@ Begin
     DeletePlayer(x,y);
     DrawTrack(x,y, x,y-cell_size);
     SetPlayer(x, y-cell_size);
+    counter:= counter + 1;
   end;
   
 end; // MoveUp
@@ -473,6 +494,7 @@ Begin
     DeletePlayer(x,y);
     DrawTrack(x,y, x,y+cell_size);
     SetPlayer(x, y+cell_size);
+    counter:= counter + 1;
   end;
   
 end; // MoveDown
@@ -666,28 +688,39 @@ begin
 end;
 
 // Actions on tapping keys while playing
-procedure GameKeyDown(key: integer);  
+procedure GameKeyDown(key: integer);    
 begin
    
-   case key of
+
+     case key of
+       
+       VK_Left: // Move left
+          MoveLeft(PenX, PenY);
+         
+       VK_Right: // Move right
+          MoveRight(PenX, PenY);
+         
+       VK_Up: // Move up
+          MoveUp(PenX, PenY);
+         
+       VK_Down: // Move down
+          MoveDown(PenX, PenY);
      
-     VK_Left: // Move left
-        MoveLeft(PenX, PenY);
-       
-     VK_Right: // Move right
-        MoveRight(PenX, PenY);
-       
-     VK_Up: // Move up
-        MoveUp(PenX, PenY);
-       
-     VK_Down: // Move down
-        MoveDown(PenX, PenY);
-        
-        
-     VK_F5: // Find solution
+       VK_F5: // Find solution
+       begin
+        SetFontSize(22);
+        TextOut(width + 130, round((17/24)*height), '0     ');
         FindPath(PenX, PenY);
-     
-   end;
+        counter:=counter + 100000;
+       end;
+        
+     end;
+     SetFontSize(22);
+     if (counter < 100000)
+     then
+       TextOut(width + 130, round((17/24)*height), IntToStr(counter))
+     else
+       TextOut(width + 130, round((17/24)*height), '0');
    
    // Check for win
   if ((PenX = finish_x) and (PenY = finish_y))
@@ -696,7 +729,7 @@ begin
    
 end; // GameKeyDown
 
-// Generate maze inside
+// Generate maze
 procedure GenerateMaze();
 
 Label
@@ -908,11 +941,17 @@ begin
   
   DrawButtons();
   GenerateMaze();
+  counter:= 0;
   
   SetFontColor(clBlack);
   SetFontSize(12);
-  TextOut(width + 10, round((18/24)*height), 'Use arrows to play');
-  TextOut(width + 10, round((19/24)*height), 'Tap F5 to find the solution');  
+  TextOut(width + 10, round((19/24)*height), 'Use arrows to play');
+  TextOut(width + 10, round((20/24)*height), 'Tap F5 to find the solution');
+  
+  SetFontSize(22);
+  TextOut(width + 10, round((17/24)*height), 'MOVES: ');
+  TextOut(width + 130, round((17/24)*height), '0');
+
   
   // Set start position
   MoveTo(2*indent, 2*indent);
@@ -973,6 +1012,7 @@ begin
   
 end;
 
+// Actions for 'menu' button
 Procedure Action0();
 begin
   
@@ -981,35 +1021,37 @@ begin
   
 end;
 
-// Catch mouse down inside menu
+// Catch mouse down
 Procedure MenuMouseDown(x, y, mousebutton: integer);
 begin
   
-  if ((x > button_x1) and (x < button_x2)) 
+  if (mousebutton = 1)
   then
-  begin
-    
-    if ((y > button1_y1) and (y < button1_y2)) // Start
+    if ((x > button_x1) and (x < button_x2)) 
     then
-      Action1();
-    
-    if ((y > button2_y1) and (y < button2_y2)) // How to play
-    then
-      Action2();
-    
-    if ((y > button3_y1) and (y < button3_y2)) // High scores
-    then
-      Action3();
-    
-    if ((y > button4_y1) and (y < button4_y2)) // Exit
-    then
-      Action4();
-    
-    if ((y > button_menu_y1) and (y < button_menu_y2)) // Menu
-    then
-      Action0();
-    
-  end;
+    begin
+      
+      if ((y > button1_y1) and (y < button1_y2)) // Start
+      then
+        Action1();
+      
+      if ((y > button2_y1) and (y < button2_y2)) // How to play
+      then
+        Action2();
+      
+      if ((y > button3_y1) and (y < button3_y2)) // High scores
+      then
+        Action3();
+      
+      if ((y > button4_y1) and (y < button4_y2)) // Exit
+      then
+        Action4();
+      
+      if ((y > button_menu_y1) and (y < button_menu_y2)) // Menu
+      then
+        Action0();
+      
+    end;
   
 end;
 
@@ -1023,7 +1065,6 @@ begin
   
   
 end;
-
 
 Begin
   
