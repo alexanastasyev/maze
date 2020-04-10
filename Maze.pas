@@ -903,31 +903,24 @@ end; // GenerateMaze
   
 // Main playing procedure
 procedure PlayGame();
-var
-  check_win: boolean; // variable for checking win position
-    
 begin
   ClearWindow;
   
   DrawButtons();
   GenerateMaze();
   
+  SetFontColor(clBlack);
+  SetFontSize(12);
+  TextOut(width + 10, round((18/24)*height), 'Use arrows to play');
+  TextOut(width + 10, round((19/24)*height), 'Tap F5 to find the solution');  
+  
   // Set start position
   MoveTo(2*indent, 2*indent);
   SetPlayer(PenX, PenY);
-  
-  check_win:= false;
-  
-  // Making moves
+
+  // Catch key tapping
+  OnKeyDown:= GameKeyDown;
    
-    // Catch key tapping
-    OnKeyDown:= GameKeyDown;
-   
-    // Check for win
-    check_win:= (PenX = finish_x) and (PenY = finish_y); 
-    if (check_win)
-    then
-      Win();
   
 end;  // PlayGame
 
@@ -1038,6 +1031,8 @@ Begin
   SetWindowHeight(height);
   SetWindowWidth(width+200);
   CenterWindow;  
+  SetWindowIsFixedSize(true); 
+  SetWindowTitle('MAZE');
   
   MainMenu();
   
