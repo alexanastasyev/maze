@@ -438,13 +438,13 @@ Begin
   SetFontSize(100);
   TextOut(round(width/3), round(height/3), 'WIN !!!');
   SetFontSize(20);
-  counter:= counter - 1;
+
   if (counter > 100000)
   then
     str:= 'You didn`t solve the maze by yourself'
             //You solved the maze in 555 moves
   else
-    str:= '   You solved the maze in ' + IntToStr(counter) + ' moves';
+    str:= '   You solved the maze in ' + IntToStr(counter - 1) + ' moves';
   
   TextOut(round(width/3)-20, round(height/3) + 140, str);
   DrawButtons();
