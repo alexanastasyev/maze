@@ -1,4 +1,0 @@
-Buttons - https://www.cyberforum.ru/pascalabc-net/thread1982600.html
-Keys` codes - https://www.cyberforum.ru/cpp-beginners/thread423964.html
-Save / load of window content - http://pascalabc.net/downloads/pabcnethelp/index.htm?page=PABCUnits/GraphABC/gr_Window.html
-Generating and finding solutions of mazes - https://habr.com/ru/post/445378/
