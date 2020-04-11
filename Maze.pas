@@ -605,7 +605,7 @@ Begin
     
   end
   else
-    TextOut(round(width/3)-20, round(height/3) + 200, 'You didn`t take any place');
+    TextOut(round(width/3) + 60, round(height/3) + 200, 'You don`t take any place');
   end; // else
   
   
