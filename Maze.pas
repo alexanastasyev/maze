@@ -50,6 +50,8 @@ Type
 
 Var
   counter: integer;
+  str_inp: string;
+  check: boolean;
   
 // Draws formated button in rectangle with x1,y1-x2,y2 coordinates and text s
 Procedure MakeSpecialButton(x1,y1,x2,y2: integer; s: string);
@@ -425,10 +427,84 @@ Begin
   
 end; // DrawOrangeTrack
 
+procedure Input(Key: integer);
+var
+  f, g: text;
+  i: integer;
+  temps: string;
+  tempint: integer;
+  str_help: string;
+  
+begin
+  if (check)
+  then
+  case key of
+    48..57, 65..90, 97..122: // Char keys
+    begin
+       str_inp:= str_inp + chr(key);
+       TextOut(round(width/3) + 180, round(height/3) + 200, str_inp); 
+    end;
+    13:
+      begin
+        FillRectangle(2*indent, round(height/3) + 200, width - 2*indent, round(height/3) + 400);
+        assign(g, 'Temp.txt');
+        append(g);
+        writeln(g, str_inp);
+        writeln(g, counter - 1);
+        close(g);
+        
+        reset(g);
+        
+        assign(f, 'HighScores.txt');
+        rewrite(f);
+        
+        for i:= 1 to 10 do
+        begin
+          
+          readln(g, temps);
+          writeln(f, temps);
+          readln(g, tempint);
+          writeln(f, tempint);
+          
+        end;
+        
+        close(g);
+        erase(g);
+        close(f);
+        
+        TextOut(round(width/3) + 80, round(height/3) + 200, 'Saved successfully'); 
+        check:= false;
+      end;
+    8:
+      begin
+        str_help:= '';
+        for i:= 1 to (length(str_inp)-1) do
+          str_help:= str_help + str_inp[i];
+        str_inp:= str_help;
+        FillRectangle(round(width/3) + 180, round(height/3) + 200, width - 2*indent, round(height/3) + 400);
+        TextOut(round(width/3) + 180, round(height/3) + 200, str_inp); 
+      end;
+  end;
+ 
+end;
+
 // After-game screen
 Procedure Win();
+Type
+  player = record
+    name: String;
+    score: integer;
+  end;
+  
 Var
   str: string;
+  players: array[1..10] of player;
+  helper: player;
+  i: integer;
+  v: integer;
+  temps: string;
+  tempint: integer;
+  f,g: text;
 
 Begin
   
@@ -437,17 +513,103 @@ Begin
   SetBrushColor(clWhite);
   SetFontSize(100);
   TextOut(round(width/3), round(height/3), 'WIN !!!');
+  DrawButtons();
   SetFontSize(20);
 
   if (counter > 100000)
   then
-    str:= 'You didn`t solve the maze by yourself'
-            //You solved the maze in 555 moves
+  begin
+    str:= 'You didn`t solve the maze by yourself';
+    TextOut(round(width/3)-20, round(height/3) + 140, str);
+  end
+
   else
+  begin
     str:= '   You solved the maze in ' + IntToStr(counter - 1) + ' moves';
+    TextOut(round(width/3)-20, round(height/3) + 140, str);
+    assign(f, 'HighScores.txt');
+    reset(f);
+
+    for i:= 1 to 10 do
+    begin
+      readln(f, players[i].name);
+      readln(f, players[i].score);
+    end;
   
-  TextOut(round(width/3)-20, round(height/3) + 140, str);
-  DrawButtons();
+    close(f);
+    
+    repeat
+
+      v:= 0;
+      for i:= 1 to 9 do
+      begin
+        
+        if (players[i].score > players[i+1].score)
+        then
+        begin
+          helper.name:= players[i].name;
+          helper.score:= players[i].score;
+          
+          players[i].name:= players[i+1].name;
+          players[i].score:= players[i+1].score;
+          
+          players[i+1].name:= helper.name;
+          players[i+1].score:= helper.score;
+          
+          v:= v + 1;
+        end;
+      
+      end;
+    until (v = 0);
+  
+  rewrite(f);
+  for i:= 1 to 10 do  
+  begin
+    
+    writeln(f, players[i].name);
+    writeln(f, players[i].score);
+    
+  end;
+  
+  close(f);
+  
+  if (players[10].score > (counter - 1))
+  then
+  begin
+    //readln(name);
+    assign(f, 'HighScores.txt');
+    reset(f);  
+    assign(g, 'Temp.txt');
+    rewrite(g);
+    
+    for i:= 1 to 9 do
+    begin
+      
+      readln(f, temps);
+      writeln(g, temps);
+      readln(f, tempint);
+      writeln(g, tempint);
+      
+    end;
+    close(g);
+    close(f);
+    
+    str_inp:= '';
+    
+    TextOut(round(width/3) + 80, round(height/3) + 200, 'Name: ');
+    
+    check:= true;
+    OnKeyDown:= Input;
+   
+    
+    
+  end
+  else
+    TextOut(round(width/3)-20, round(height/3) + 200, 'You didn`t take any place');
+  end; // else
+  
+  
+  
   
 end;
 
@@ -1836,6 +1998,85 @@ begin
   
 end;
 
+Procedure HighScores();
+Type
+  player = record
+    name: String;
+    score: integer;
+  end;
+  
+Var
+  f: text;
+  s: string;
+  pos: integer;
+  sc: integer;
+  i, j: integer;
+  size: integer;
+  v: integer;
+  
+  players: array[1..10] of player;
+  helper: player;
+  
+Begin
+  SetFontSize(30);
+  SetFontColor(clRed);
+  TextOut(round(width/2) - 100, 1, 'High scores');
+  SetFontSize(26);
+  SetFontColor(clBlue);
+  TextOut(1, round(height*(2/24)), 'Position');
+  TextOut(round(width/2) - 100, round(height*(2/24)), 'Name');
+  TextOut(width - 200, round(height*(2/24)), 'Moves');
+  DrawButtons();
+  
+  assign(f, 'HighScores.txt');
+  
+  reset(f);
+  
+  SetFontSize(20);
+  SetFontColor(clBlack);
+  for i:= 1 to 10 do
+  begin
+    readln(f, players[i].name);
+    readln(f, players[i].score);
+  end;
+  
+  close(f);
+  
+
+  repeat
+  begin
+    v:= 0;
+    for i:= 1 to 9 do
+    begin
+      
+      if (players[i].score > players[i+1].score)
+      then
+      begin
+        helper.name:= players[i].name;
+        helper.score:= players[i].score;
+        
+        players[i].name:= players[i+1].name;
+        players[i].score:= players[i+1].score;
+        
+        players[i+1].name:= helper.name;
+        players[i+1].score:= helper.score;
+        
+        v:= v + 1;
+      end;
+    
+    end;
+  end;
+  until (v = 0);
+  
+  for i:= 1 to 10 do
+    begin
+      TextOut(1, round(height*((2*i+2)/24)), IntToStr(i));
+      TextOut(round(width/2) - 100, round(height*((2*i+2)/24)), players[i].name);
+      TextOut(width - 200, round(height*((2*i+2)/24)), IntToStr(players[i].score));
+    end;
+  
+end;
+
 // Action for button1
 Procedure Action1();
 Begin
@@ -1859,10 +2100,7 @@ Procedure Action3();
 Begin
   
   ClearWindow;
-  SetFontSize(30);
-  SetFontColor(clRed);
-  TextOut(1,1,'High scores');
-  DrawButtons();
+  HighScores();
   
 end;
 
