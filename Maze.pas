@@ -434,6 +434,7 @@ Begin
   
   ClearWindow;
   SetFontColor(clGray);
+  SetBrushColor(clWhite);
   SetFontSize(100);
   TextOut(round(width/3), round(height/3), 'WIN !!!');
   SetFontSize(20);
@@ -1132,8 +1133,7 @@ end;
 // Actions on tapping keys while playing
 procedure GameKeyDown(key: integer);    
 begin
-   
-
+        
      case key of
        
        VK_Left: // Move left
@@ -1157,7 +1157,10 @@ begin
        end;
         
      end;
+     
      SetFontSize(22);
+     SetBrushColor(clWhite);
+     SetPenColor(clBlack);
      if (counter < 100000)
      then
        TextOut(width + 130, round((17/24)*height), IntToStr(counter))
@@ -1805,6 +1808,7 @@ begin
   TextOut(width + 10, round((19/24)*height), 'Use arrows to play');
   TextOut(width + 10, round((20/24)*height), 'Tap F5 to find the solution');
   
+  SetBrushColor(clWhite);
   SetFontSize(22);
   TextOut(width + 10, round((17/24)*height), 'MOVES: ');
   TextOut(width + 130, round((17/24)*height), '0');
