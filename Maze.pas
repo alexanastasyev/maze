@@ -191,82 +191,6 @@ Begin
   
 end; // DeletePlayer
 
-// Removes yellow track
-Procedure RemoveTrack();
-Var
-  i, j: integer; // for loop
-  
-Begin  
-  i:= 2*indent;
-  j:= 2*indent;
-  
-  SetPenColor(clWhite);
-  SetBrushColor(clWhite);
- 
-  // Remove track
-  for i:= 1 to width do
-    for j:=1 to height do
-      if GetPixel(i,j) <> GetPixel(indent+1, indent+1)
-      then
-        SetPixel(i,j, clWhite);
-  
-end;
-
-// Removes orange track
-Procedure RemoveOrangeTrack();
-Var
-  i, j: integer; // for loop
-  
-Begin  
-  i:= 2*indent;
-  j:= 2*indent;
-  
-  SetPenColor(clWhite);
-  SetBrushColor(clWhite);
-   
-  // Remove track
-  for i:= 1 to width do
-    for j:=1 to height do
-      if (GetPixel(i,j) = clOrange)
-      then
-        SetPixel(i,j, clWhite);
-end;
-
-// Function for checking if a move is possible
-Function CheckMove(current_x: integer; current_y: integer; target_x: integer; target_y: integer): boolean;
-begin
-    CheckMove:= true;
-    
-    // Check if move left
-    if (current_y = target_y) and ((current_x - target_x)= cell_size)
-    then
-      if (GetPixel(indent+1, indent+1) = GetPixel(target_x+player_size+indent+1, target_y))
-      then
-        CheckMove:= false;
-      
-    // Check if move right
-    if (current_y = target_y) and ((current_x - target_x) = -cell_size)
-    then
-      if (GetPixel(indent+1, indent+1) = GetPixel(target_x-indent-1, target_y))
-      then
-        CheckMove:= false;    
-      
-    // Check if move up
-    if ((current_y - target_y) = cell_size) and (current_x = target_x)
-    then
-      if (GetPixel(indent+1, indent+1) = GetPixel(target_x, target_y+player_size+indent+1))
-      then
-        CheckMove:= false;    
-      
-    // Check if move down
-    if ((current_y - target_y) = -cell_size) and (current_x = target_x)
-    then
-      if (GetPixel(indent+1, indent+1) = GetPixel(target_x, target_y-indent-1))
-      then
-        CheckMove:= false;    
-  
-end; // CheckMove
-
 // Check if a move doesn`t cross track
 Function CheckDirection(current_x: integer; current_y: integer; target_x: integer; target_y: integer): boolean;
 begin
@@ -311,6 +235,117 @@ begin
    end; // else
     
 end; // CheckDirection
+
+// Removes yellow track
+Procedure RemoveTrack();
+Var
+  i, j: integer; // for loop
+  
+Begin  
+  i:= 2*indent;
+  j:= 2*indent;
+  
+  SetPenColor(clWhite);
+  SetBrushColor(clWhite);
+  
+  
+  i:= indent {+ cell_size};
+  while (i < width - indent) do
+  begin
+    
+    j:= indent;
+    
+    while (j < height - indent) do
+    begin
+      
+      if (CheckDirection(i,j, i,j+round(cell_size/2)) = false)
+      then
+      begin
+        SetPenWidth(indent);
+        SetPenColor(clWhite);
+        MoveTo(i - 1, j + line_size);
+        LineTo(i - 1, j + cell_size - 2);
+        MoveTo(i, j);
+      end;
+      
+      if (CheckDirection(i,j, i+round(cell_size/2),j) = false)
+      then
+      begin
+        SetPenWidth(indent);
+        SetPenColor(clWhite);
+        MoveTo(i + line_size, j);
+        LineTo(i + cell_size - 2, j);
+        MoveTo(i,j);
+      end;
+      
+      j:= j + cell_size;
+    end;
+  
+  i:= i + cell_size;
+  
+  end;
+  
+  
+  j:= 2*indent;
+  
+  SetBrushColor(clWhite);
+  
+  while(j < height) do
+  begin
+    i:= 2*indent;
+    while (i < width) do
+    begin
+      if GetPixel(i,j) <> GetPixel(indent+1, indent+1)
+      then
+        FillRectangle(i - line_size,j - line_size, i + cell_size - indent - line_size, j + cell_size - 2*indent + line_size);
+      
+      i:= i + cell_size;
+      
+    end;
+    j:= j + cell_size;
+  end;
+  
+  SetPenWidth(line_size);
+  SetPenColor(maze_color);
+  MoveTo(width-indent, height-indent-cell_size);
+  LineTo(width-indent, indent);
+  
+end;
+
+// Function for checking if a move is possible
+Function CheckMove(current_x: integer; current_y: integer; target_x: integer; target_y: integer): boolean;
+begin
+    CheckMove:= true;
+    
+    // Check if move left
+    if (current_y = target_y) and ((current_x - target_x)= cell_size)
+    then
+      if (GetPixel(indent+1, indent+1) = GetPixel(target_x+player_size+indent+1, target_y))
+      then
+        CheckMove:= false;
+      
+    // Check if move right
+    if (current_y = target_y) and ((current_x - target_x) = -cell_size)
+    then
+      if (GetPixel(indent+1, indent+1) = GetPixel(target_x-indent-1, target_y))
+      then
+        CheckMove:= false;    
+      
+    // Check if move up
+    if ((current_y - target_y) = cell_size) and (current_x = target_x)
+    then
+      if (GetPixel(indent+1, indent+1) = GetPixel(target_x, target_y+player_size+indent+1))
+      then
+        CheckMove:= false;    
+      
+    // Check if move down
+    if ((current_y - target_y) = -cell_size) and (current_x = target_x)
+    then
+      if (GetPixel(indent+1, indent+1) = GetPixel(target_x, target_y-indent-1))
+      then
+        CheckMove:= false;    
+  
+end; // CheckMove
 
 // Draw player track
 Procedure DrawTrack(current_x: integer; current_y: integer; target_x: integer; target_y: integer);
@@ -1092,8 +1127,6 @@ begin
       
   end; // while
   
-  RemoveOrangeTrack();
-  
 end;
 
 // Actions on tapping keys while playing
@@ -1721,6 +1754,8 @@ begin
       if (CheckDirection(i,j, i,j+round(cell_size/2)) = true)
       then
       begin
+        SetPenWidth(line_size);
+        SetPenColor(maze_color);
         MoveTo(i,j);
         LineTo(i,j+cell_size+1);
         MoveTo(i,j);
@@ -1729,10 +1764,13 @@ begin
       if (CheckDirection(i,j, i+round(cell_size/2),j) = true)
       then
       begin
-        MoveTo(i,j);
+        SetPenWidth(line_size);
+        SetPenColor(maze_color);
+        MoveTo(i, j);
         LineTo(i+cell_size+1,j);
         MoveTo(i,j);
-      end;
+      end
+      else;
       
       j:= j + cell_size;
     end;
@@ -1740,7 +1778,7 @@ begin
   i:= i + cell_size;
   
   end;
-  
+    
   // Draw finish
   MoveTo(width-indent, height-indent);
   SetPenColor(clWhite);
