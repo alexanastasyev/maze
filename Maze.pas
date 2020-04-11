@@ -533,6 +533,8 @@ Procedure FindPath(x: integer; y: integer);
 
 Label
   point1;
+Label
+  point2;
 
 var
   
@@ -544,6 +546,9 @@ var
   
   sizeX: integer; // size of stackX
   sizeY: integer; // size of stackY
+  
+  k1, k2, k3: integer; // reserve directions
+  state: boolean;
   
 begin
   
@@ -576,8 +581,324 @@ begin
     do
     begin
     
+      //------------------------------------------------------------------------
+      
+      k1 := 0;
+      k2 := 0;
+      k3 := 0;
+      
+      state:= false;
+      
+      while not(state) do
+      begin
+      
       randomize;
-      direction:= (PABCSystem.random(3472)*PABCSystem.Random(8321)) mod 4 + 1;
+      
+        case k1 of
+          
+          1:
+            
+            case k2 of
+              
+              2:
+              
+                case k3 of
+                  
+                  3: direction:= 4;
+                  4: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 3
+                      else
+                        direction:= 4;
+                    end;
+                end;
+              
+              3:
+              
+                case k3 of
+                  
+                  2: direction:= 4;
+                  4: direction:= 2;
+                  0: 
+                    begin
+                      direction:= PABCSystem.Random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 2
+                      else
+                        direction:= 4;
+                    end;
+                end;
+              
+              4:
+              
+                case k3 of
+                  
+                  3: direction:= 2;
+                  2: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 3
+                      else
+                        direction:= 2;
+                    end;
+                 
+                end;
+              
+              0: 
+                begin
+                  direction:= PABCSystem.random(3);
+                  if (direction = 0)
+                  then
+                    direction:= 2
+                  else
+                    if (direction = 1)
+                    then
+                      direction:= 3
+                    else
+                        direction:= 4;
+                 end;
+              
+            end;
+            
+          2:
+          
+            case k2 of
+              
+              1:
+              
+                case k3 of
+                  
+                  3: direction:= 4;
+                  4: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 3
+                      else
+                        direction:= 4;
+                    end;
+                  
+                end;
+              
+              3:
+              
+                case k3 of
+                  
+                  1: direction:= 4;
+                  4: direction:= 1;
+                  0: 
+                    begin
+                      direction:= PABCSystem.Random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 4;
+                    end;
+                end;
+              
+              4:
+              
+                case k3 of
+                  
+                  3: direction:= 1;
+                  1: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.Random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 3;
+                    end;
+                 
+                end;
+              
+              0: 
+                begin
+                  direction:= PABCSystem.random(3);
+                  if (direction = 0)  
+                  then
+                    direction:= 1
+                  else
+                    if (direction = 1)
+                    then
+                      direction:= 3
+                    else
+                      direction:= 4;
+                end;  
+              
+            end;  
+              
+          3:
+          
+            case k2 of
+              
+              1:
+              
+                case k3 of
+                  
+                  2: direction:= 4;
+                  4: direction:= 2;
+                  0: 
+                    begin
+                      direction:= PABCSystem.Random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 2
+                      else
+                        direction:= 4;
+                    end;
+                end;
+              
+              2:
+              
+                case k3 of
+                  
+                  1: direction:= 4;
+                  4: direction:= 1;
+                  0: 
+                    begin
+                      direction:= PABCSystem.Random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 4;
+                    end;
+                end;
+              
+              4:
+              
+                case k3 of
+                  
+                  1: direction:= 2;
+                  2: direction:= 1;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 2;
+                    end;
+                    
+                 
+                end;
+              
+              0: 
+                begin
+                  direction:= PABCSystem.random(3);
+                  if (direction = 0)  
+                  then
+                    direction:= 1
+                  else
+                    if (direction = 1)
+                    then
+                      direction:= 2
+                    else
+                      direction:= 4;
+                end;  
+              
+            end;  
+          
+          4:
+          
+            case k2 of
+              
+              1:
+              
+                case k3 of
+                  
+                  3: direction:= 2;
+                  2: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 3
+                      else
+                        direction:= 2;
+                    end;
+                  
+                end;
+              
+              3:
+              
+                case k3 of
+                  
+                  2: direction:= 1;
+                  1: direction:= 2;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 2;
+                    end;
+                  
+                end;
+              
+              2:
+              
+                case k3 of
+                  
+                  3: direction:= 1;
+                  1: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 1)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 3;
+                    end;
+                 
+                end;
+              
+              0: 
+                begin
+                  direction:= PABCSystem.random(3);
+                  if (direction = 0)  
+                  then
+                    direction:= 1
+                  else
+                    if (direction = 1)
+                    then
+                      direction:= 3
+                    else
+                      direction:= 2;
+                end;  
+              
+            end;
+          
+          0: 
+            begin
+              direction:= PABCSystem.random(4)+1;
+            end;
+          
+        end;
+
+          
+
+//------------------------------------------------------------------------
+
       
       case direction of
         
@@ -592,7 +913,28 @@ begin
               
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY);
+              
+              state:= true;
 
+            end
+            
+            else
+            begin
+              
+              if (k1 = 0)
+              then
+                k1:= direction
+              else
+                if (k2 = 0)
+                then
+                  k2:= direction
+                else
+                  if (k3 = 0)
+                  then
+                    k3:= direction
+                  else
+                    goto point2;
+              
             end;
             
           end;
@@ -607,6 +949,27 @@ begin
               
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY);
+              
+              state:= true;
+              
+            end
+            
+            else
+            begin
+              
+              if (k1 = 0)
+              then
+                k1:= direction
+              else
+                if (k2 = 0)
+                then
+                  k2:= direction
+                else
+                  if (k3 = 0)
+                  then
+                    k3:= direction
+                  else
+                    goto point2;
               
             end;
             
@@ -624,6 +987,27 @@ begin
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY);
               
+              state:= true;
+              
+            end
+            
+            else
+            begin
+              
+              if (k1 = 0)
+              then
+                k1:= direction
+              else
+                if (k2 = 0)
+                then
+                  k2:= direction
+                else
+                  if (k3 = 0)
+                  then
+                    k3:= direction
+                  else
+                    goto point2;
+              
             end;
             
           end;
@@ -639,12 +1023,34 @@ begin
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY); 
               
+              state:= true;
+              
+            end
+            
+            else
+            begin
+              
+              if (k1 = 0)
+              then
+                k1:= direction
+              else
+                if (k2 = 0)
+                then
+                  k2:= direction
+                else
+                  if (k3 = 0)
+                  then
+                    k3:= direction
+                  else
+                    goto point2;
+              
             end;
             
           end;
         
       end; // case
     
+    end;
     check_win:= ((PenX = finish_x - 2*indent - player_size) and (PenY = finish_y));
     
     if (check_win)
@@ -652,6 +1058,8 @@ begin
       break;
     
     end; // while
+    
+    point2:
 
       if (not (check_win))
       then
@@ -679,6 +1087,7 @@ begin
         
         goto point1;
       end; // if
+  
 
       
   end; // while
@@ -734,6 +1143,8 @@ procedure GenerateMaze();
 
 Label
   point1;
+Label
+  point2;
   
 Var
   i,j: integer; // for loop
@@ -746,6 +1157,9 @@ Var
   
   sizeX: integer; // size of stackX
   sizeY: integer; // size of stackY
+  
+  k1, k2, k3: integer; // reserve directions
+  state: boolean;
 
 begin
 
@@ -785,9 +1199,326 @@ begin
          or ((CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true) and (CheckMove(PenX,PenY, PenX,PenY+cell_size) = true))) 
     do
     begin
-    
+      
+      
+//------------------------------------------------------------------------
+      
+      k1 := 0;
+      k2 := 0;
+      k3 := 0;
+      
+      state:= false;
+      
+      while not(state) do
+      begin
+      
       randomize;
-      direction:= (PABCSystem.random(3472)*PABCSystem.Random(8321)) mod 4 + 1;
+      
+        case k1 of
+          
+          1:
+            
+            case k2 of
+              
+              2:
+              
+                case k3 of
+                  
+                  3: direction:= 4;
+                  4: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 3
+                      else
+                        direction:= 4;
+                    end;
+                end;
+              
+              3:
+              
+                case k3 of
+                  
+                  2: direction:= 4;
+                  4: direction:= 2;
+                  0: 
+                    begin
+                      direction:= PABCSystem.Random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 2
+                      else
+                        direction:= 4;
+                    end;
+                end;
+              
+              4:
+              
+                case k3 of
+                  
+                  3: direction:= 2;
+                  2: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 3
+                      else
+                        direction:= 2;
+                    end;
+                 
+                end;
+              
+              0: 
+                begin
+                  direction:= PABCSystem.random(3);
+                  if (direction = 0)
+                  then
+                    direction:= 2
+                  else
+                    if (direction = 1)
+                    then
+                      direction:= 3
+                    else
+                        direction:= 4;
+                 end;
+              
+            end;
+            
+          2:
+          
+            case k2 of
+              
+              1:
+              
+                case k3 of
+                  
+                  3: direction:= 4;
+                  4: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 3
+                      else
+                        direction:= 4;
+                    end;
+                  
+                end;
+              
+              3:
+              
+                case k3 of
+                  
+                  1: direction:= 4;
+                  4: direction:= 1;
+                  0: 
+                    begin
+                      direction:= PABCSystem.Random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 4;
+                    end;
+                end;
+              
+              4:
+              
+                case k3 of
+                  
+                  3: direction:= 1;
+                  1: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.Random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 3;
+                    end;
+                 
+                end;
+              
+              0: 
+                begin
+                  direction:= PABCSystem.random(3);
+                  if (direction = 0)  
+                  then
+                    direction:= 1
+                  else
+                    if (direction = 1)
+                    then
+                      direction:= 3
+                    else
+                      direction:= 4;
+                end;  
+              
+            end;  
+              
+          3:
+          
+            case k2 of
+              
+              1:
+              
+                case k3 of
+                  
+                  2: direction:= 4;
+                  4: direction:= 2;
+                  0: 
+                    begin
+                      direction:= PABCSystem.Random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 2
+                      else
+                        direction:= 4;
+                    end;
+                end;
+              
+              2:
+              
+                case k3 of
+                  
+                  1: direction:= 4;
+                  4: direction:= 1;
+                  0: 
+                    begin
+                      direction:= PABCSystem.Random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 4;
+                    end;
+                end;
+              
+              4:
+              
+                case k3 of
+                  
+                  1: direction:= 2;
+                  2: direction:= 1;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 2;
+                    end;
+                    
+                 
+                end;
+              
+              0: 
+                begin
+                  direction:= PABCSystem.random(3);
+                  if (direction = 0)  
+                  then
+                    direction:= 1
+                  else
+                    if (direction = 1)
+                    then
+                      direction:= 2
+                    else
+                      direction:= 4;
+                end;  
+              
+            end;  
+          
+          4:
+          
+            case k2 of
+              
+              1:
+              
+                case k3 of
+                  
+                  3: direction:= 2;
+                  2: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 3
+                      else
+                        direction:= 2;
+                    end;
+                  
+                end;
+              
+              3:
+              
+                case k3 of
+                  
+                  2: direction:= 1;
+                  1: direction:= 2;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 0)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 2;
+                    end;
+                  
+                end;
+              
+              2:
+              
+                case k3 of
+                  
+                  3: direction:= 1;
+                  1: direction:= 3;
+                  0: 
+                    begin
+                      direction:= PABCSystem.random(2);
+                      if (direction = 1)
+                      then
+                        direction:= 1
+                      else
+                        direction:= 3;
+                    end;
+                 
+                end;
+              
+              0: 
+                begin
+                  direction:= PABCSystem.random(3);
+                  if (direction = 0)  
+                  then
+                    direction:= 1
+                  else
+                    if (direction = 1)
+                    then
+                      direction:= 3
+                    else
+                      direction:= 2;
+                end;  
+              
+            end;
+          
+          0: 
+            begin
+              direction:= PABCSystem.random(4)+1;
+            end;
+          
+        end;
+
+          
+
+//------------------------------------------------------------------------
+
       
       case direction of
         
@@ -803,7 +1534,28 @@ begin
               
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY);
+              
+              state:= true;
 
+            end
+            
+            else
+            begin
+              
+              if (k1 = 0)
+              then
+                k1:= direction
+              else
+                if (k2 = 0)
+                then
+                  k2:= direction
+                else
+                  if (k3 = 0)
+                  then
+                    k3:= direction
+                  else
+                    goto point2;
+              
             end;
             
           end;
@@ -819,6 +1571,27 @@ begin
               
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY);
+              
+              state:= true;
+              
+            end
+            
+            else
+            begin
+              
+              if (k1 = 0)
+              then
+                k1:= direction
+              else
+                if (k2 = 0)
+                then
+                  k2:= direction
+                else
+                  if (k3 = 0)
+                  then
+                    k3:= direction
+                  else
+                    goto point2;
               
             end;
             
@@ -837,6 +1610,27 @@ begin
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY);
               
+              state:= true;
+              
+            end
+            
+            else
+            begin
+              
+              if (k1 = 0)
+              then
+                k1:= direction
+              else
+                if (k2 = 0)
+                then
+                  k2:= direction
+                else
+                  if (k3 = 0)
+                  then
+                    k3:= direction
+                  else
+                    goto point2;
+              
             end;
             
           end;
@@ -853,14 +1647,39 @@ begin
               push(PenX, stackX, sizeX);
               push(PenY, stackY, sizeY); 
               
+              state:= true;
+              
             end;
             
-          end;
+          end
+          
+          else
+            begin
+              
+              if (k1 = 0)
+              then
+                k1:= direction
+              else
+                if (k2 = 0)
+                then
+                  k2:= direction
+                else
+                  if (k3 = 0)
+                  then
+                    k3:= direction
+                  else
+                    goto point2;
+              
+            end;
         
       end; // case
-      
+    
+    end;
+    
     end; // while
-
+      
+      point2:
+      
       if (visited < total_cells)
       then
       begin
