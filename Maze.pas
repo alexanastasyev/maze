@@ -1358,6 +1358,8 @@ Var
   
   k1, k2, k3: integer; // reserve directions
   state: boolean;
+  
+  r: integer; // random
 
 begin
 
@@ -1906,7 +1908,7 @@ begin
   
   DeletePlayer(PenX, PenY);
   
-  // Draw blue lines everywhere where possible
+  // Draw blue lines 
   i:= indent {+ cell_size};
   while (i < width - indent) do
   begin
@@ -1915,25 +1917,34 @@ begin
     
     while (j < height - indent) do
     begin
+      r:= PABCSystem.random(22);
       
       if (CheckDirection(i,j, i,j+round(cell_size/2)) = true)
       then
       begin
-        SetPenWidth(line_size);
-        SetPenColor(maze_color);
-        MoveTo(i,j);
-        LineTo(i,j+cell_size+1);
-        MoveTo(i,j);
+        if (r <> 0)
+        then
+        begin
+          SetPenWidth(line_size);
+          SetPenColor(maze_color);
+          MoveTo(i,j);
+          LineTo(i,j+cell_size+1);
+          MoveTo(i,j);
+        end;
       end;
       
       if (CheckDirection(i,j, i+round(cell_size/2),j) = true)
       then
       begin
-        SetPenWidth(line_size);
-        SetPenColor(maze_color);
-        MoveTo(i, j);
-        LineTo(i+cell_size+1,j);
-        MoveTo(i,j);
+        if (r <> 0)
+        then
+        begin 
+          SetPenWidth(line_size);
+          SetPenColor(maze_color);
+          MoveTo(i, j);
+          LineTo(i+cell_size+1,j);
+          MoveTo(i,j);
+        end;
       end
       else;
       
