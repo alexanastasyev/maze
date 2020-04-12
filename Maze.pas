@@ -314,6 +314,83 @@ Begin
   
 end;
 
+// Removes yellow track
+Procedure RemoveOrangeTrack();
+Var
+  i, j: integer; // for loop
+  
+Begin  
+  i:= 2*indent;
+  j:= 2*indent;
+  
+  SetPenColor(clWhite);
+  SetBrushColor(clWhite);
+  
+  
+  i:= indent {+ cell_size};
+  while (i < width - indent) do
+  begin
+    
+    j:= indent;
+    
+    while (j < height - indent) do
+    begin
+      
+      if (CheckDirection(i,j, i,j+round(cell_size/2)) = false)
+      then
+      begin
+        SetPenWidth(indent);
+        SetPenColor(clWhite);
+        MoveTo(i - 1, j + line_size);
+        LineTo(i - 1, j + cell_size - 2);
+        MoveTo(i, j);
+      end;
+      
+      if (CheckDirection(i,j, i+round(cell_size/2),j) = false)
+      then
+      begin
+        SetPenWidth(indent);
+        SetPenColor(clWhite);
+        MoveTo(i + line_size, j);
+        LineTo(i + cell_size - 2, j);
+        MoveTo(i,j);
+      end;
+      
+      j:= j + cell_size;
+    end;
+  
+  i:= i + cell_size;
+  
+  end;
+  
+  
+  j:= 2*indent;
+  
+  SetBrushColor(clWhite);
+  SetPixel(1,3,clOrange);
+  
+  while(j < height) do
+  begin
+    i:= 2*indent;
+    while (i < width) do
+    begin
+      if GetPixel(i,j) = GetPixel(1,3)
+      then
+        FillRectangle(i - line_size,j - line_size, i + cell_size - indent - line_size, j + cell_size - 2*indent + line_size);
+      
+      i:= i + cell_size;
+      
+    end;
+    j:= j + cell_size;
+  end;
+  
+  SetPenWidth(line_size);
+  SetPenColor(maze_color);
+  MoveTo(width-indent, height-indent-cell_size);
+  LineTo(width-indent, indent);
+  
+end;
+
 // Function for checking if a move is possible
 Function CheckMove(current_x: integer; current_y: integer; target_x: integer; target_y: integer): boolean;
 begin
@@ -519,7 +596,7 @@ Begin
   if (counter > 100000)
   then
   begin
-    str:= 'You didn`t solve the maze by yourself';
+    str:= 'You don`t solve the maze by yourself';
     TextOut(round(width/3)-20, round(height/3) + 140, str);
   end
 
@@ -1289,6 +1366,12 @@ begin
 
       
   end; // while
+  
+  RemoveOrangeTrack();
+  DeletePlayer(finish_x - cell_size, finish_y);
+  SetBrushColor(track_color);
+  FillRectangle(finish_x - cell_size, finish_y, finish_x - cell_size + player_size, finish_y + player_size);
+  SetPlayer(2*indent, 2*indent);
   
 end;
 
