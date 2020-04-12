@@ -314,6 +314,49 @@ Begin
   
 end;
 
+Function CheckOrangeDirection(current_x: integer; current_y: integer; target_x: integer; target_y: integer): boolean;
+begin
+  
+    SetPixel(1,2, clOrange);
+    CheckOrangeDirection:= false;
+    
+    if ((target_x >= width) or (target_y >= height) or (target_x <= 0) or (target_y <= 0))
+    then
+      CheckOrangeDirection:= false
+    else
+    begin
+    
+    // Check if move left
+    if (current_y = target_y) and (current_x > target_x)
+    then
+      if (GetPixel(1, 2) <> GetPixel(target_x+1, target_y))
+      then
+        CheckOrangeDirection:= true;
+      
+    // Check if move right
+    if (current_y = target_y) and (current_x < target_x)
+    then
+      if (GetPixel(1, 2) <> GetPixel(target_x+1, target_y))
+      then
+        CheckOrangeDirection:= true;    
+      
+    // Check if move up
+    if (current_y > target_y) and (current_x = target_x)
+    then
+      if (GetPixel(1, 2) <> GetPixel(target_x, target_y+1))
+      then
+        CheckOrangeDirection:= true;    
+      
+    // Check if move down
+    if (current_y < target_y) and (current_x = target_x)
+    then
+      if (GetPixel(1, 2) <> GetPixel(target_x, target_y+1))
+      then
+        CheckOrangeDirection:= true;    
+   end; // else
+    
+end; // CheckDirection
+
 // Removes yellow track
 Procedure RemoveOrangeTrack();
 Var
@@ -336,7 +379,7 @@ Begin
     while (j < height - indent) do
     begin
       
-      if (CheckDirection(i,j, i,j+round(cell_size/2)) = false)
+      if (CheckOrangeDirection(i,j, i,j+round(cell_size/2)) = false)
       then
       begin
         SetPenWidth(indent);
@@ -346,7 +389,7 @@ Begin
         MoveTo(i, j);
       end;
       
-      if (CheckDirection(i,j, i+round(cell_size/2),j) = false)
+      if (CheckOrangeDirection(i,j, i+round(cell_size/2),j) = false)
       then
       begin
         SetPenWidth(indent);
@@ -1370,7 +1413,7 @@ begin
   RemoveOrangeTrack();
   DeletePlayer(finish_x - cell_size, finish_y);
   SetBrushColor(track_color);
-  FillRectangle(finish_x - cell_size, finish_y, finish_x - cell_size + player_size, finish_y + player_size);
+  FillRectangle(finish_x - cell_size, finish_y, finish_x + player_size, finish_y + player_size);
   SetPlayer(2*indent, 2*indent);
   
 end;
