@@ -3,7 +3,10 @@
 Uses
   GraphABC;
 Uses
-  funcs;
+  actions;
+Uses
+  common;
+
 
 Begin
   
