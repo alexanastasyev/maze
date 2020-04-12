@@ -596,7 +596,7 @@ Begin
   if (counter > 100000)
   then
   begin
-    str:= 'You don`t solve the maze by yourself';
+    str:= 'You didn`t solve the maze by yourself';
     TextOut(round(width/3)-20, round(height/3) + 140, str);
   end
 
@@ -2085,9 +2085,33 @@ procedure Rules();
 begin
   
   ClearWindow;
-  SetFontSize(30);
+  
+  SetFontSize(20);
   SetFontColor(clRed);
-  TextOut(1,1,'Rules');
+  TextOut(1, 0, 'About the game');
+  SetFontSize(14);
+  SetFontColor(clBlack);
+  TextOut(1, 50, 'Your aim is to find the way out of maze. You can`t cross blue lines which are walls of the maze.');
+  TextOut(1, 75, 'You always start from the top left cell.  Finish is always in the bottom right cell.');
+  
+  SetFontSize(20);
+  SetFontColor(clRed);
+  TextOut(1, 125, 'How to play');
+  SetFontSize(14);
+  SetFontColor(clBlack);
+  TextOut(1, 175, 'You play as a red square. You can control it with arrows buttons to move right, left, up or down.');
+  TextOut(1, 200, 'While playing you can tap F5 button to see one of the possible solutions.');
+  
+  SetFontSize(20);
+  SetFontColor(clRed);
+  TextOut(1, 250, 'Score');
+  SetFontSize(14);
+  SetFontColor(clBlack);
+  TextOut(1, 300, 'Every relocation increments your score by 1. Try to solve the maze in as few moves as possible.');
+  TextOut(1, 325, 'If you managed to enter the top ten players, game will ask you to input your name and place it in ');
+  TextOut(1, 350, 'high scores. You can view the high scores table in "High scores" section.');
+  
+  
   DrawButtons();
   
 end;
