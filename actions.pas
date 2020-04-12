@@ -297,7 +297,7 @@ begin
         
         reset(g);
         
-        assign(f, 'highscores.txt');
+        assign(f, 'src/highscores.txt');
         rewrite(f);
         
         for i:= 1 to 10 do
@@ -374,7 +374,12 @@ Begin
     check_menu:= 3; // input name
     str:= '   You solved the maze in ' + IntToStr(counter - 1) + ' moves';
     TextOut(round(width/3)-20, round(height/3) + 140, str);
-    assign(f, 'highscores.txt');
+    
+    TextOut(round(width/3) + 80, round(height/3) + 200, 'Name: ');
+    check:= true;
+    OnKeyDown:= Input;
+    
+    assign(f, 'src/highscores.txt');
     reset(f);
 
     for i:= 1 to 10 do
@@ -424,7 +429,7 @@ Begin
   then
   begin
     //readln(name);
-    assign(f, 'highscores.txt');
+    assign(f, 'src/highscores.txt');
     reset(f);  
     assign(g, 'temp.txt');
     rewrite(g);
@@ -443,13 +448,7 @@ Begin
     
     str_inp:= '';
     
-    TextOut(round(width/3) + 80, round(height/3) + 200, 'Name: ');
-    
-    check:= true;
-    OnKeyDown:= Input;
-   
-    
-    
+       
   end
   else
     TextOut(round(width/3) + 60, round(height/3) + 200, 'You don`t take any place');
@@ -620,7 +619,7 @@ Begin
   TextOut(width - 200, round(height*(2/24)), 'Moves');
   DrawButtons();
   
-  assign(f, 'highscores.txt');
+  assign(f, 'src/highscores.txt');
   
   reset(f);
   

@@ -7,7 +7,6 @@ Uses
 Uses
   common;
 
-
 Begin
   
   // Set window
