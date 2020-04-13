@@ -283,8 +283,11 @@ begin
   case key of
     48..57, 65..90, 97..122: // Char keys
     begin
-       str_inp:= str_inp + chr(key);
-       TextOut(round(width/3) + 180, round(height/3) + 200, str_inp); 
+       if (length(str_inp)) < 16 then
+       begin
+         str_inp:= str_inp + chr(key);
+         TextOut(round(width/3) + 180, round(height/3) + 200, str_inp); 
+       end;
     end;
     13: // enter
       begin
@@ -452,7 +455,7 @@ Begin
   end
   else
   begin
-    TextOut(round(width/3) + 60, round(height/3) + 200, 'You don`t take any place');
+    TextOut(round(width/3) + 60, round(height/3) + 200, 'You don`t enter top-10');
     check_menu:= 2; // others
   end;
   end; // else
@@ -797,6 +800,8 @@ begin
       begin
         SetFontColor(clRed);
         TextOut(round(width/3) + 50, round(height/3) + 250, 'At first input your name! ');
+        TextOut(round(width/3) + 50, round(height/3) + 300, '     (And tap Enter) ');
+
         SetFontColor(clGray);
       end;
   
