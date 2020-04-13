@@ -375,9 +375,6 @@ Begin
     str:= '   You solved the maze in ' + IntToStr(counter - 1) + ' moves';
     TextOut(round(width/3)-20, round(height/3) + 140, str);
     
-    TextOut(round(width/3) + 80, round(height/3) + 200, 'Name: ');
-    check:= true;
-    OnKeyDown:= Input;
     
     assign(f, 'src/highscores.txt');
     reset(f);
@@ -424,11 +421,14 @@ Begin
   end;
   
   close(f);
-  
+
   if (players[10].score > (counter - 1))
   then
   begin
     //readln(name);
+    TextOut(round(width/3) + 80, round(height/3) + 200, 'Name: ');
+    check:= true;
+    OnKeyDown:= Input;
     assign(f, 'src/highscores.txt');
     reset(f);  
     assign(g, 'temp.txt');
@@ -451,7 +451,10 @@ Begin
        
   end
   else
+  begin
     TextOut(round(width/3) + 60, round(height/3) + 200, 'You don`t take any place');
+    check_menu:= 2; // others
+  end;
   end; // else
   
   
