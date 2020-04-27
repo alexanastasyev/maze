@@ -290,6 +290,16 @@ begin
        end;
     end;
     13: // enter
+      if (str_inp = '')
+      then
+        begin
+        SetFontColor(clRed);
+        TextOut(round(width/3) + 50, round(height/3) + 250, 'At first input your name! ');
+        TextOut(round(width/3) + 50, round(height/3) + 300, '     (And tap Enter) ');
+
+        SetFontColor(clGray);
+      end
+      else
       begin
         FillRectangle(2*indent, round(height/3) + 200, width - 2*indent, round(height/3) + 400);
         assign(g, 'temp.txt');
