@@ -12,9 +12,11 @@ Type
   end;
 
 Var  
-  points: array[1..10000] of point; 
+  points: array[1..10000000] of point; 
   number: integer;
   checker: array[1..4] of boolean;
+
+
 
 Procedure PaveRight(x: integer; y: integer);
 begin
@@ -96,18 +98,22 @@ var
   i, j: integer;
   local_number: integer;
   finish: boolean;
+  live: integer;
+  
 begin
   number:= 1;
   DeletePlayer(x,y);
   RemoveTrack();
   points[1].x := 2*indent;
   points[1].y := 2*indent;
+  live:= 1;
   
   finish:= false;
   while not(finish) do
   begin
+    
     local_number:= number;
-    for i:= 1 to local_number do
+    for i:= (local_number - live + 1) to local_number do
     begin
       PaveWay(points[i].x, points[i].y);
 
@@ -116,7 +122,8 @@ begin
         begin
           number:= number + 1;
           points[number].x := points[i].x + cell_size;
-          points[number].y := points[i].y; 
+          points[number].y := points[i].y;
+          live:= live + 1;
         end;
       if (checker[2] = true) // Left
       then
@@ -124,6 +131,7 @@ begin
           number:= number + 1;
           points[number].x := points[i].x - cell_size;
           points[number].y := points[i].y;
+          live:= live + 1;
         end;
       if (checker[3] = true) // Up
       then
@@ -131,6 +139,7 @@ begin
           number:= number + 1;
           points[number].x := points[i].x;
           points[number].y := points[i].y - cell_size;
+          live:= live + 1;
         end;
       if (checker[4] = true) // Down
       then  
@@ -138,19 +147,13 @@ begin
           number:= number + 1;
           points[number].x := points[i].x;
           points[number].y := points[i].y + cell_size;
+          live:= live + 1;
         end;
-      {  
+        
       if ((checker[1] = false) and (checker[2] = false) and (checker[3] = false) and (checker[4] = false))
       then
-      begin
-        for j:= i to (local_number-1) do
-        begin
-          points[j].x := points[j+1].x;
-          points[j].y := points[j+1].y;
-        end;
-        number:= number - 1;
-      end;
-      }
+        live:= live - 1;
+      
     end;
     finish:= CheckFinish();
   end; 
