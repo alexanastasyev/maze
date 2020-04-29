@@ -1,5 +1,5 @@
 - Shortest solution finder
-- Changing highscores according to shortest solution
+- Changing highscores according to the shortest solution
 - User maze input
 - Saving mazes into files
 - Loading saved mazes

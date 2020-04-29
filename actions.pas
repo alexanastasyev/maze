@@ -5,7 +5,7 @@ Uses
 Uses
   generator;
 Uses 
-  solver;
+  optimal_solver;
 Uses 
   common;
 
