@@ -16,6 +16,10 @@ Begin
   SetWindowIsFixedSize(true); 
   SetWindowTitle('MAZE');
   
+  //Fill everything white
+  SetBrushColor(clWhite);
+  FillRectangle(1,1, width, height);
+  
   MainMenu();
   
 end.

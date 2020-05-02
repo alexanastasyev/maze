@@ -507,7 +507,7 @@ begin
         4: // Down
           begin
             
-            if ((CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true) and (CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true))
+            if ((CheckDirection(PenX,PenY, PenX,PenY+cell_size) = true) and (CheckMove(PenX,PenY, PenX,PenY+cell_size) = true))
             then
             begin
               MoveDown(PenX, PenY);

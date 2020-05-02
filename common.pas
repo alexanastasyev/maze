@@ -187,13 +187,14 @@ Begin
   j:= 2*indent;
   
   SetBrushColor(clWhite);
+  SetPixel(1,1, track_color);
   
   while(j < height) do
   begin
     i:= 2*indent;
     while (i < width) do
     begin
-      if GetPixel(i,j) <> GetPixel(indent+1, indent+1)
+      if GetPixel(i,j) = GetPixel(1, 1)
       then
         FillRectangle(i - line_size,j - line_size, i + cell_size - indent - line_size, j + cell_size - 2*indent + line_size);
       
@@ -275,6 +276,13 @@ Begin
   SetPenWidth(player_size+line_size-1);
   MoveTo(round(current_x+(player_size/2)), round(current_y+(player_size/2)));
   LineTo(round(target_x+(player_size/2)), round(target_y+(player_size/2)));
+  
+  // Draw rectangle
+  MoveTo(target_x, target_y);
+  SetPenColor(track_color);
+  SetPenWidth(line_size);
+  DrawRectangle(target_x,target_y, target_x+player_size,target_y+player_size);
+  MoveTo(target_x,target_y);
   
   // Get settings back
   MoveTo(current_x, current_y);
