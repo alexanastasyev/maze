@@ -371,6 +371,8 @@ begin
   MoveTo(final_x, final_y);
   
   SetPlayer(PenX, PenY);
+  
+  optimal_solution_moves:= 0;
     
   sizeX:= 0;
   sizeY:= 0;
@@ -726,6 +728,8 @@ begin
               push(PenY, stackY, sizeY);
               
               state:= true;
+              
+              optimal_solution_moves:= optimal_solution_moves + 1;
 
             end
             
@@ -762,6 +766,8 @@ begin
               push(PenY, stackY, sizeY);
               
               state:= true;
+              
+              optimal_solution_moves:= optimal_solution_moves + 1;
               
             end
             
@@ -800,6 +806,8 @@ begin
               
               state:= true;
               
+              optimal_solution_moves:= optimal_solution_moves + 1;
+              
             end
             
             else
@@ -835,6 +843,8 @@ begin
               push(PenY, stackY, sizeY); 
               
               state:= true;
+              
+              optimal_solution_moves:= optimal_solution_moves + 1;
               
             end
             
@@ -895,6 +905,8 @@ begin
         MoveTo(top(StackX,sizeX), top(StackY, sizeY));      
         
         SetPlayer(top(StackX,sizeX), top(StackY, sizeY));
+        
+        optimal_solution_moves:= optimal_solution_moves - 1;
         
         goto point1;
       end; // if

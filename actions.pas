@@ -31,6 +31,9 @@ Const
   
   button_menu_y1 = round((1/24)*height);
   button_menu_y2 = round((3/24)*height);
+  
+  button_ok_y1 = round((21/24)*height);
+  button_ok_y2 = round((23/24)*height);
 
   //-------buttons` coordinates end-------//
 
@@ -40,6 +43,7 @@ Var
   check: boolean;
   check_menu: byte;
   in_game: boolean;
+  score: integer;
   
 // Draws formated button in rectangle with x1,y1-x2,y2 coordinates and text s
 Procedure MakeSpecialButton(x1,y1,x2,y2: integer; s: string);
@@ -289,48 +293,6 @@ begin
          TextOut(round(width/3) + 180, round(height/3) + 200, str_inp); 
        end;
     end;
-    13: // enter
-      if (str_inp = '')
-      then
-        begin
-        SetFontColor(clRed);
-        TextOut(round(width/3) + 50, round(height/3) + 250, 'At first input your name! ');
-        TextOut(round(width/3) + 50, round(height/3) + 300, '     (And tap Enter) ');
-
-        SetFontColor(clGray);
-      end
-      else
-      begin
-        FillRectangle(2*indent, round(height/3) + 200, width - 2*indent, round(height/3) + 400);
-        assign(g, 'temp.txt');
-        append(g);
-        writeln(g, str_inp);
-        writeln(g, counter - 1);
-        close(g);
-        
-        reset(g);
-        
-        assign(f, 'src/highscores.txt');
-        rewrite(f);
-        
-        for i:= 1 to 10 do
-        begin
-          
-          readln(g, temps);
-          writeln(f, temps);
-          readln(g, tempint);
-          writeln(f, tempint);
-          
-        end;
-        
-        close(g);
-        erase(g);
-        close(f);
-        
-        TextOut(round(width/3) + 80, round(height/3) + 200, 'Saved successfully'); 
-        check:= false;
-        check_menu:= 2; // others
-      end;
     8: // backspace
       begin
         str_help:= '';
@@ -378,15 +340,17 @@ Begin
   if (counter > 100000)
   then
   begin
+    SetBrushColor(clWhite);
+    FillRectangle(round(width/3), round(height/3), width, height);
     str:= 'You didn`t solve the maze by yourself';
-    TextOut(round(width/3)-20, round(height/3) + 140, str);
+    TextOut(round(width/3)-20, round(height/3) + 60, str);
   end
 
   else
   begin
-    check_menu:= 3; // input name
-    str:= '   You solved the maze in ' + IntToStr(counter - 1) + ' moves';
-    TextOut(round(width/3)-20, round(height/3) + 140, str);
+    check_menu:= 9; // input name
+    str:= '   Your score: ' + score;
+    TextOut(round(width/3)+80, round(height/3) + 140, str);
     
     
     assign(f, 'src/highscores.txt');
@@ -406,7 +370,7 @@ Begin
       for i:= 1 to 9 do
       begin
         
-        if (players[i].score > players[i+1].score)
+        if (players[i].score < players[i+1].score)
         then
         begin
           helper.name:= players[i].name;
@@ -435,9 +399,15 @@ Begin
   
   close(f);
 
-  if (players[10].score > (counter - 1))
+  if (players[10].score < (score))
   then
   begin
+    
+    SetBrushColor(clWhite);
+    FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button4_y2 + 2);
+    MakeSpecialButton(button_x1, button_ok_y1, button_x2, button_ok_y2, '        Ok');
+    
+    
     //readln(name);
     TextOut(round(width/3) + 80, round(height/3) + 200, 'Name: ');
     check:= true;
@@ -465,7 +435,7 @@ Begin
   end
   else
   begin
-    TextOut(round(width/3) + 60, round(height/3) + 200, 'You don`t enter top-10');
+    TextOut(round(width/3) + 60, round(height/3) + 230, 'You don`t enter top-10');
     check_menu:= 2; // others
   end;
   end; // else
@@ -476,58 +446,107 @@ Begin
 end;
 
 // Actions on tapping keys while playing
-procedure GameKeyDown(key: integer);    
+procedure GameKeyDown(key: integer);  
 begin
-        
-     case key of
+    if not (win_checker)
+    then
+    begin
+       case key of
+         
+         VK_Left: // Move left
+            MoveLeft(PenX, PenY);
+           
+         VK_Right: // Move right
+            MoveRight(PenX, PenY);
+           
+         VK_Up: // Move up
+            MoveUp(PenX, PenY);
+           
+         VK_Down: // Move down
+            MoveDown(PenX, PenY);
        
-       VK_Left: // Move left
-          MoveLeft(PenX, PenY);
-         
-       VK_Right: // Move right
-          MoveRight(PenX, PenY);
-         
-       VK_Up: // Move up
-          MoveUp(PenX, PenY);
-         
-       VK_Down: // Move down
-          MoveDown(PenX, PenY);
-     
+          
+       end;
+       
+       SetFontSize(22);
+       SetBrushColor(clWhite);
+       SetPenColor(clBlack);
+       if (counter < 100000)
+       then
+       begin
+         SetFontColor(clBlack);
+         SetFontSize(12);
+         TextOut(width + 10, round((19/24)*height), 'Use arrows to play');
         
-     end;
+         SetBrushColor(clWhite);
+         SetFontSize(22);
+         TextOut(width + 10, round((17/24)*height), 'MOVES: ');
+         TextOut(width + 130, round((17/24)*height), IntToStr(counter))
+       end
+       else
+       begin
+         SetFontColor(clBlack);
+         SetFontSize(12);
+         TextOut(width + 10, round((19/24)*height), 'Use arrows to play');
+        
+         SetBrushColor(clWhite);
+         SetFontSize(22);
+         TextOut(width + 10, round((17/24)*height), 'MOVES: ');
+         TextOut(width + 130, round((17/24)*height), '-');
+       end;
      
-     SetFontSize(22);
-     SetBrushColor(clWhite);
-     SetPenColor(clBlack);
-     if (counter < 100000)
-     then
-     begin
-       SetFontColor(clBlack);
-       SetFontSize(12);
-       TextOut(width + 10, round((19/24)*height), 'Use arrows to play');
-      
+     // Check for win
+    if ((PenX = finish_x) and (PenY = finish_y))
+    then
+    begin
+       check_menu:= 8; // after game
+       win_checker:= true;
        SetBrushColor(clWhite);
-       SetFontSize(22);
-       TextOut(width + 10, round((17/24)*height), 'MOVES: ');
-       TextOut(width + 130, round((17/24)*height), IntToStr(counter))
-     end
-     else
-     begin
-       SetFontColor(clBlack);
+       FillRectangle(width + 10, round((17/24)*height), width + 200, height);
+       
        SetFontSize(12);
-       TextOut(width + 10, round((19/24)*height), 'Use arrows to play');
-      
        SetBrushColor(clWhite);
-       SetFontSize(22);
-       TextOut(width + 10, round((17/24)*height), 'MOVES: ');
-       TextOut(width + 130, round((17/24)*height), '0');
-     end;
-   
-   // Check for win
-  if ((PenX = finish_x) and (PenY = finish_y))
-  then
-    Win();
-   
+       SetPenColor(clBlack);
+       if (counter < 100000)
+       then
+       begin
+         SetFontColor(clBlack);
+        
+         SetBrushColor(clWhite);
+         
+         FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button4_y2);
+         
+         SetFontSize(12);
+                  
+         FindPath(PenX, PenY);
+         
+         TextOut(width + 10, round((17/24)*height), 'YOUR MOVES: ');
+         TextOut(width + 130, round((17/24)*height), IntToStr(counter - 1));
+         
+         TextOut(width + 10, round((18/24)*height), 'OPTIMAL MOVES: ');
+         TextOut(width + 150, round((18/24)*height), IntToStr(optimal_solution_moves));
+         
+         score:= round((optimal_solution_moves/(counter - 1))*1000);
+         
+         TextOut(width + 10, round((19/24)*height), 'SCORE: ');
+         TextOut(width + 90, round((19/24)*height), IntToStr(score));
+         
+       end
+       else
+       begin
+         SetFontColor(clBlack);
+        
+         SetBrushColor(clWhite);
+         SetFontSize(12);
+         TextOut(width + 10, round((18/24)*height), 'OPTIMAL MOVES: ');
+         TextOut(width + 150, round((18/24)*height), IntToStr(optimal_solution_moves));
+       end;
+     
+     MakeSpecialButton(button_x1, button_ok_y1, button_x2, button_ok_y2, '       Ok');
+       
+      // Win();
+    end;
+  end; 
 end; // GameKeyDown
   
 // Main playing procedure
@@ -542,6 +561,7 @@ begin
   check_menu:= 1; // game
   GenerateMaze();
   counter:= 0;
+  win_checker:= false;
   
   SetFontColor(clBlack);
   SetFontSize(12);
@@ -585,16 +605,17 @@ begin
   SetFontSize(14);
   SetFontColor(clBlack);
   TextOut(1, 175, 'You play as a red square. You can control it with arrows buttons to move right, left, up or down.');
-  TextOut(1, 200, 'While playing you can tap F5 button to see one of the possible solutions.');
+  TextOut(1, 200, 'While playing you can tap "Solution" button to see the best way of solving the maze.');
   
   SetFontSize(20);
   SetFontColor(clRed);
   TextOut(1, 250, 'Score');
   SetFontSize(14);
   SetFontColor(clBlack);
-  TextOut(1, 300, 'Every relocation increments your score by 1. Try to solve the maze in as few moves as possible.');
-  TextOut(1, 325, 'If you managed to enter the top ten players, game will ask you to input your name and place it in ');
-  TextOut(1, 350, 'high scores. You can view the high scores table in "High scores" section.');
+  TextOut(1, 300, 'Every relocation increments your moves by 1. Try to solve the maze in as few moves as possible.');
+  TextOut(1, 325, 'Score is counted as [ ( (optimal solution moves) / (your solution moves) ) * 1000 ]');
+  TextOut(1, 350, 'If you managed to enter the top ten players, game will ask you to input your name and place it in ');
+  TextOut(1, 375, 'high scores. You can view the high scores table in "High scores" section.');
   
   
   DrawButtons();
@@ -632,7 +653,7 @@ Begin
   SetFontColor(clBlue);
   TextOut(1, round(height*(2/24)), 'Position');
   TextOut(round(width/2) - 100, round(height*(2/24)), 'Name');
-  TextOut(width - 200, round(height*(2/24)), 'Moves');
+  TextOut(width - 200, round(height*(2/24)), 'Score');
   DrawButtons();
   
   assign(f, 'src/highscores.txt');
@@ -656,7 +677,7 @@ Begin
     for i:= 1 to 9 do
     begin
       
-      if (players[i].score > players[i+1].score)
+      if (players[i].score < players[i+1].score)
       then
       begin
         helper.name:= players[i].name;
@@ -731,6 +752,13 @@ end;
 
 // Catch mouse down
 Procedure MenuMouseDown(x, y, mousebutton: integer);
+var
+  f, g: text;
+  i: integer;
+  temps: string;
+  tempint: integer;
+  str_help: string;
+  
 begin
   
   case check_menu of
@@ -804,16 +832,6 @@ begin
         end;
     end;
     
-  3: // input
-    if (mousebutton = 1)
-      then
-      begin
-        SetFontColor(clRed);
-        TextOut(round(width/3) + 50, round(height/3) + 250, 'At first input your name! ');
-        TextOut(round(width/3) + 50, round(height/3) + 300, '     (And tap Enter) ');
-
-        SetFontColor(clGray);
-      end;
   
   4: // confirm exit
     if (mousebutton = 1)
@@ -925,7 +943,10 @@ begin
              if ((y > button1_y1) and (y < button1_y2)) // Yes
              then
              begin
-              check_menu:= 1; // game
+              check_menu:= 8; // after game
+              FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button4_y2);
+              
+              {
               DrawGameButtons();
               
               SetFontColor(clBlack);
@@ -936,8 +957,10 @@ begin
               SetFontSize(22);
               TextOut(width + 10, round((17/24)*height), 'MOVES: ');
               TextOut(width + 130, round((17/24)*height), '0');
+              }
               FindPath(PenX, PenY);
-              counter:=counter + 100000;
+              counter:=counter + 100002;
+              MakeSpecialButton(button_x1, button_ok_y1, button_x2, button_ok_y2, '       Ok');
              end;
              
             if ((y > button2_y1) and (y < button2_y2)) // No
@@ -1021,6 +1044,72 @@ begin
           end;
         end;
      end;
+   
+   8: // after game  
+    begin
+      if (mousebutton = 1)
+      then
+        if ((x > button_x1) and (x < button_x2) and (y > button_ok_y1) and (y < button_ok_y2)) 
+        then
+          Win();
+    end;
+    
+   9: // input  
+    begin
+      if (mousebutton = 1)
+      then
+        if ((x > button_x1) and (x < button_x2) and (y > button_ok_y1) and (y < button_ok_y2)) 
+        then
+        begin
+          if (str_inp = '')
+      then
+        begin
+        SetFontColor(clRed);
+        SetFontSize(14);
+        TextOut(width, round(height/3) + 280, 'At first input your name! ');
+        
+        SetFontSize(22);
+        SetFontColor(clGray);
+      end
+      else
+      begin
+        FillRectangle(2*indent, round(height/3) + 200, width - 2*indent, round(height/3) + 400);
+        assign(g, 'temp.txt');
+        append(g);
+        writeln(g, str_inp);
+        writeln(g, score);
+        close(g);
+        
+        reset(g);
+        
+        assign(f, 'src/highscores.txt');
+        rewrite(f);
+        
+        for i:= 1 to 10 do
+        begin
+          
+          readln(g, temps);
+          writeln(f, temps);
+          readln(g, tempint);
+          writeln(f, tempint);
+          
+        end;
+        
+        close(g);
+        erase(g);
+        close(f);
+        
+        TextOut(round(width/3) + 80, round(height/3) + 200, 'Saved successfully'); 
+        check:= false;
+        
+        FillRectangle(button_x1 - 6, button_ok_y1, width + 200, button_ok_y2 + 2);
+        DrawButtons();
+        
+        check_menu:= 2; // others
+      end;
+        end;
+    end;
+   
   end;
 end; // MenuMouseDown
 

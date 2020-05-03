@@ -22,6 +22,10 @@ Const
   
 Type
   stack = array[1..10000] of integer;
+
+Var
+  optimal_solution_moves: integer;
+  win_checker: boolean;
   
 // Set player to position with x,y - top left cornner  
 Procedure SetPlayer(x: integer; y: integer);

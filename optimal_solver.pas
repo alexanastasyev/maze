@@ -217,6 +217,17 @@ begin
   FindStart();
   
   SetPlayer(final_x, final_y);
+  
+  win_checker:= true;
+  SetBrushColor(clWhite);
+  FillRectangle(width + 10, round((17/24)*height), width + 200, height);
+  
+  SetFontColor(clBlack);
+  SetBrushColor(clWhite);
+  SetFontSize(12);
+  TextOut(width + 10, round((18/24)*height), 'OPTIMAL MOVES: ');
+  TextOut(width + 150, round((18/24)*height), IntToStr(optimal_solution_moves));
+  
 end;
 
 
