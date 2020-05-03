@@ -405,7 +405,7 @@ Begin
     
     SetBrushColor(clWhite);
     FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button4_y2 + 2);
-    MakeSpecialButton(button_x1, button_ok_y1, button_x2, button_ok_y2, '        Ok');
+    MakeSpecialButton(button_x1, button_ok_y1, button_x2, button_ok_y2, '  Confirm');
     
     
     //readln(name);
