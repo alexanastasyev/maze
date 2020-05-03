@@ -18,7 +18,7 @@ Begin
   
   //Fill everything with white
   SetBrushColor(clWhite);
-  FillRectangle(1,1, width, height);
+  FillRectangle(1,1, width + 200, height);
   
   MainMenu();
   
