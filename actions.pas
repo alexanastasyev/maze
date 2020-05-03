@@ -1102,7 +1102,7 @@ begin
         TextOut(round(width/3) + 80, round(height/3) + 200, 'Saved successfully'); 
         check:= false;
         
-        FillRectangle(button_x1 - 6, button_ok_y1, width + 200, button_ok_y2 + 2);
+        FillRectangle(width, button_ok_y1 - 10, width + 200, height);
         DrawButtons();
         
         check_menu:= 2; // others

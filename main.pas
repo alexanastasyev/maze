@@ -16,7 +16,7 @@ Begin
   SetWindowIsFixedSize(true); 
   SetWindowTitle('MAZE');
   
-  //Fill everything white
+  //Fill everything with white
   SetBrushColor(clWhite);
   FillRectangle(1,1, width, height);
   

@@ -135,7 +135,7 @@ Begin
       if (CheckOrangeDirection(i,j, i,j+round(cell_size/2)) = false)
       then
       begin
-        SetPenWidth(indent);
+        SetPenWidth(indent + 2);
         SetPenColor(clWhite);
         MoveTo(i - 1, j + line_size);
         LineTo(i - 1, j + cell_size - 2);
@@ -145,7 +145,7 @@ Begin
       if (CheckOrangeDirection(i,j, i+round(cell_size/2),j) = false)
       then
       begin
-        SetPenWidth(indent);
+        SetPenWidth(indent + 2);
         SetPenColor(clWhite);
         MoveTo(i + line_size, j);
         LineTo(i + cell_size - 2, j);
@@ -922,6 +922,10 @@ begin
   FillRectangle(PenX, PenY, PenX + player_size, PenY + player_size);
   RemoveTrack();
   RemoveOrangeTrack();
+  
+  SetBrushColor(clWhite);
+  FillRectangle(final_x + player_size, final_y, final_x + 2*player_size, final_y + player_size); 
+  
   //SetPlayer(final_x, final_y);
   
   

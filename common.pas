@@ -163,7 +163,7 @@ Begin
       if (CheckDirection(i,j, i,j+round(cell_size/2)) = false)
       then
       begin
-        SetPenWidth(indent);
+        SetPenWidth(indent + 2);
         SetPenColor(clWhite);
         MoveTo(i - 1, j + line_size);
         LineTo(i - 1, j + cell_size - 2);
@@ -173,7 +173,7 @@ Begin
       if (CheckDirection(i,j, i+round(cell_size/2),j) = false)
       then
       begin
-        SetPenWidth(indent);
+        SetPenWidth(indent + 2);
         SetPenColor(clWhite);
         MoveTo(i + line_size, j);
         LineTo(i + cell_size - 2, j);

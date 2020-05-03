@@ -6,7 +6,7 @@ Begin
   rewrite(f);
   
   writeln(f, 'ALEX');
-  writeln(f, 980);
+  writeln(f, 950);
   
   writeln(f, 'ANDREW');
   writeln(f, 900);
@@ -15,10 +15,10 @@ Begin
   writeln(f, 850);
   
   writeln(f, 'HELEN');
-  writeln(f, 830);
+  writeln(f, 800);
   
   writeln(f, 'JOE');
-  writeln(f, 770);
+  writeln(f, 750);
   
   writeln(f, 'NICK');
   writeln(f, 700);
@@ -30,7 +30,7 @@ Begin
   writeln(f, 600);
   
   writeln(f, 'DAVID');
-  writeln(f, 540);
+  writeln(f, 550);
   
   writeln(f, 'ALINA');
   writeln(f, 500);
