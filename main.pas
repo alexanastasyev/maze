@@ -3,9 +3,9 @@
 Uses
   GraphABC;
 Uses
-  actions;
+  actions in 'modules/actions.pas';
 Uses
-  common;
+  common in 'modules/common.pas';
 
 Begin
   
