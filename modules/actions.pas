@@ -24,36 +24,6 @@ Var
   action: integer;
   input_menu: boolean;
   
-// Draws formated button in rectangle with x1,y1-x2,y2 coordinates and text s
-Procedure MakeSpecialButton(x1,y1,x2,y2: integer; s: string);
-var
-  current_pen_color: color;
-  current_pen_width: integer;
-  current_font_size: integer;
-  current_font_color: color;
-  
-begin
-  
-  current_pen_color:= PenColor;
-  current_pen_width:= PenWidth;
-  current_font_size:= FontSize;
-  current_font_color:= FontColor;
-  
-  SetPenWidth(3);
-  SetPenColor(clLightBlue);
-  SetFontSize(22);
-  SetFontColor(clLightBlue);
-  
-  Rectangle(x1, y1, x2, y2);
-  TextOut(x1+2*indent, y1+2*indent, s);
-  
-  SetPenWidth(current_pen_width);
-  SetPenColor(current_pen_color);
-  SetFontSize(current_font_size);
-  SetFontColor(current_font_color);
-  
-end;
-
 // Draws menu buttons
 Procedure DrawButtons();
 var
@@ -896,6 +866,7 @@ begin
   action:= 0; // input menu
   
   DrawUnactiveWalls();
+  SetPlayer(2*indent, 2*indent);
   DrawBorderWalls;
   DrawFinish();
   
@@ -996,6 +967,7 @@ begin
           action:= 0; // input menu
           
           DrawUnactiveWalls();
+          SetPlayer(2*indent, 2*indent);
           DrawBorderWalls;
           DrawFinish();
         end;
@@ -2078,7 +2050,7 @@ begin
             
              if ((y > button1_y1) and (y < button1_y2)) // Yes
              then
-                Action1();
+               Action1;
             
             if ((y > button2_y1) and (y < button2_y2)) // No
             then
