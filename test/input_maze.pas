@@ -983,26 +983,14 @@ begin
         MoveTo(i ,j);
         LineTo(i + cell_size,j);
         
-          if ((GetPixel(i - line_size, j) = GetPixel(1,2)) 
-         or (GetPixel(i + line_size, j) = GetPixel(1,2))
-         or (GetPixel(i, j + line_size) = GetPixel(1,2))
-         or (GetPixel(i, j - line_size) = GetPixel(1,2)))
+        if ((GetPixel(i, j - line_size) = GetPixel(1,2)) and (GetPixel(i, j + line_size) = GetPixel(1,2)))
         then
         begin
-          MoveTo(i - 1, j);
           SetPenColor(active);
-          LineTo(i + 1,j);
-          
-          MoveTo(i - 1, j - 1);
-          SetPenColor(active);
-          LineTo(i + 1, j - 1);
-          
-          MoveTo(i - 1, j + 1);
-          SetPenColor(active);
-          LineTo(i + 1, j + 1);
-          
+          MoveTo(i, j - line_size);
+          LineTo(i, j + line_size);
         end;
-        
+                
         MoveTo(i,j);
       end;
       if (GetPixel(i,j+line_size) = GetPixel(1,1))
@@ -1013,27 +1001,29 @@ begin
         MoveTo(i, j);
         LineTo(i,j + cell_size);
         
-        if ((GetPixel(i - line_size, j) = GetPixel(1,2)) 
-       or (GetPixel(i + line_size, j) = GetPixel(1,2))
-       or (GetPixel(i, j + line_size) = GetPixel(1,2))
-       or (GetPixel(i, j - line_size) = GetPixel(1,2)))
-      then
-      begin
-        MoveTo(i, j - 1);
-        SetPenColor(active);
-        LineTo(i, j + 1);
+        if ((GetPixel(i - line_size, j) = GetPixel(1,2)) and (GetPixel(i + line_size, j) = GetPixel(1,2)))
+        then
+        begin
+          SetPenColor(active);
+          MoveTo(i - line_size, j);
+          LineTo(i + line_size, j);
+        end;
         
-        MoveTo(i - 1, j - 1);
-        SetPenColor(active);
-        LineTo(i - 1, j + 1);
-        
-        MoveTo(i + 1, j - 1);
-        SetPenColor(active);
-        LineTo(i + 1, j + 1);
-        
-      end;
         MoveTo(i,j);
         
+      end;
+      
+      if ((GetPixel(i - line_size, j) = GetPixel(1,2))
+       or (GetPixel(i + line_size, j) = GetPixel(1,2))
+       or (GetPixel(i, j - line_size) = GetPixel(1,2))
+       or (GetPixel(i, j + line_size) = GetPixel(1,2)))
+      then
+      begin
+        SetBrushColor(active);
+        SetPenColor(active);
+        SetPixel(i,j,active);
+        
+        FillRectangle(i - 1, j - 1, i + 2, j + 2);        
       end;
       
       j:= j + cell_size;
