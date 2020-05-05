@@ -983,15 +983,79 @@ begin
   
 end;
 
+Procedure RemoveUnactive();
+var
+  i,j: integer;
+  
+begin
+   
+  i:= indent;
+  while (i < width - indent) do
+  begin
+    
+    j:= indent;
+    
+    while (j < height - indent) do
+    begin
+      SetPixel(1,1, unactive);
+      SetPixel(1,2, active);
+      if (GetPixel(i + line_size,j) = GetPixel(1,1))
+      then
+      begin
+        SetPenWidth(line_size);
+        SetPenColor(clWhite);
+        MoveTo(i ,j);
+        LineTo(i + cell_size,j);
+        if ((GetPixel(i - line_size, j) = GetPixel(1,2)) 
+         or (GetPixel(i + line_size, j) = GetPixel(1,2))
+         or (GetPixel(i, j + line_size) = GetPixel(1,2))
+         or (GetPixel(i, j - line_size) = GetPixel(1,2)))
+        then
+        begin
+          MoveTo(i - 1, j);
+          SetPenColor(active);
+          LineTo(i+1,j);
+        end;
+        MoveTo(i,j);
+      end;
+      if (GetPixel(i,j+line_size) = GetPixel(1,1))
+      then
+      begin
+        SetPenWidth(line_size);
+        SetPenColor(clWhite);
+        MoveTo(i, j);
+        LineTo(i,j + cell_size);
+        if ((GetPixel(i - line_size, j) = GetPixel(1,2)) 
+         or (GetPixel(i + line_size, j) = GetPixel(1,2))
+         or (GetPixel(i, j + line_size) = GetPixel(1,2))
+         or (GetPixel(i, j - line_size) = GetPixel(1,2)))
+        then
+        begin
+          MoveTo(i, j - 1);
+          SetPenColor(active);
+          LineTo(i, j+1);
+        end;
+        MoveTo(i,j);
+      end;
+      
+      j:= j + cell_size;
+    end;
+  
+  i:= i + cell_size;
+  
+  end;
+    
+  DrawBorderWalls();
+  DrawFinish();
+  
+end;
+
 Procedure StartInput();
 begin
   
   DrawUnactiveWalls();
-  
   DrawBorderWalls;
-  
   DrawFinish();
-  
   OnMouseDown:= InputMouseDown;
   
 end;
