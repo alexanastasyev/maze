@@ -23,6 +23,7 @@ Var
   score: integer;
   action: integer;
   input_menu: boolean;
+  random_maze: boolean;
   
 // Draws menu buttons
 Procedure DrawButtons();
@@ -304,92 +305,101 @@ Begin
     str:= '   Your score: ' + score;
     TextOut(round(width/3)+80, round(height/3) + 140, str);
     
-    
-    assign(f, 'src/highscores.txt');
-    reset(f);
-
-    for i:= 1 to 10 do
+    if (random_maze)
+    then
     begin
-      readln(f, players[i].name);
-      readln(f, players[i].score);
-    end;
-  
-    close(f);
     
-    repeat
-
-      v:= 0;
+      assign(f, 'src/highscores.txt');
+      reset(f);
+  
+      for i:= 1 to 10 do
+      begin
+        readln(f, players[i].name);
+        readln(f, players[i].score);
+      end;
+    
+      close(f);
+      
+      repeat
+  
+        v:= 0;
+        for i:= 1 to 9 do
+        begin
+          
+          if (players[i].score < players[i+1].score)
+          then
+          begin
+            helper.name:= players[i].name;
+            helper.score:= players[i].score;
+            
+            players[i].name:= players[i+1].name;
+            players[i].score:= players[i+1].score;
+            
+            players[i+1].name:= helper.name;
+            players[i+1].score:= helper.score;
+            
+            v:= v + 1;
+          end;
+        
+        end;
+      until (v = 0);
+    
+    rewrite(f);
+    for i:= 1 to 10 do  
+    begin
+      
+      writeln(f, players[i].name);
+      writeln(f, players[i].score);
+      
+    end;
+    
+    close(f);
+  
+    if (players[10].score < (score))
+    then
+    begin
+      
+      SetBrushColor(clWhite);
+      FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button5_y2 + 2);
+      MakeSpecialButton(button_x1, button_ok_y1, button_x2, button_ok_y2, '  Confirm');
+      
+      
+      //readln(name);
+      TextOut(round(width/3) + 80, round(height/3) + 200, 'Name: ');
+      check:= true;
+      OnKeyDown:= Input;
+      assign(f, 'src/highscores.txt');
+      reset(f);  
+      assign(g, 'temp.txt');
+      rewrite(g);
+      
       for i:= 1 to 9 do
       begin
         
-        if (players[i].score < players[i+1].score)
-        then
-        begin
-          helper.name:= players[i].name;
-          helper.score:= players[i].score;
-          
-          players[i].name:= players[i+1].name;
-          players[i].score:= players[i+1].score;
-          
-          players[i+1].name:= helper.name;
-          players[i+1].score:= helper.score;
-          
-          v:= v + 1;
-        end;
-      
+        readln(f, temps);
+        writeln(g, temps);
+        readln(f, tempint);
+        writeln(g, tempint);
+        
       end;
-    until (v = 0);
-  
-  rewrite(f);
-  for i:= 1 to 10 do  
-  begin
-    
-    writeln(f, players[i].name);
-    writeln(f, players[i].score);
-    
-  end;
-  
-  close(f);
-
-  if (players[10].score < (score))
-  then
-  begin
-    
-    SetBrushColor(clWhite);
-    FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button5_y2 + 2);
-    MakeSpecialButton(button_x1, button_ok_y1, button_x2, button_ok_y2, '  Confirm');
-    
-    
-    //readln(name);
-    TextOut(round(width/3) + 80, round(height/3) + 200, 'Name: ');
-    check:= true;
-    OnKeyDown:= Input;
-    assign(f, 'src/highscores.txt');
-    reset(f);  
-    assign(g, 'temp.txt');
-    rewrite(g);
-    
-    for i:= 1 to 9 do
+      close(g);
+      close(f);
+      
+      str_inp:= '';
+      
+         
+    end
+    else
     begin
-      
-      readln(f, temps);
-      writeln(g, temps);
-      readln(f, tempint);
-      writeln(g, tempint);
-      
+      TextOut(round(width/3) + 60, round(height/3) + 230, 'You don`t enter top-10');
+      check_menu:= 2; // others
     end;
-    close(g);
-    close(f);
-    
-    str_inp:= '';
-    
-       
-  end
-  else
-  begin
-    TextOut(round(width/3) + 60, round(height/3) + 230, 'You don`t enter top-10');
-    check_menu:= 2; // others
-  end;
+    end
+    else
+    begin
+      TextOut(round(width/3), round(height/3) + 230, 'Only random mazes are scored');
+      check_menu:= 2; // others
+    end;
   end; // else
   
   
@@ -2050,7 +2060,25 @@ begin
             
              if ((y > button1_y1) and (y < button1_y2)) // Yes
              then
-               Action1;
+               if (random_maze)
+               then
+                 Action1
+               else
+               begin
+                 DeletePlayer(PenX, PenY);
+                 RemoveTrack;
+                 SetPlayer(2*indent, 2*indent);
+                 counter:= 0;
+                 DrawGameButtons;
+                 SetFontColor(clBlack);
+                   SetFontSize(12);
+                   TextOut(width + 10, round((19/24)*height), 'Use arrows to play');
+                  
+                   SetBrushColor(clWhite);
+                   SetFontSize(22);
+                   TextOut(width + 10, round((17/24)*height), 'MOVES: ');
+                   TextOut(width + 130, round((17/24)*height), '0');
+               end;
             
             if ((y > button2_y1) and (y < button2_y2)) // No
             then
@@ -2262,15 +2290,18 @@ begin
         then
         begin
           
-          if ((y > button_menu_y1) and (y < button_menu_y2))
+          if ((y > button_menu_y1) and (y < button_menu_y2)) // Menu
           then
             Action0;
-          
-          if ((y > button1_y1) and (y < button1_y2))
+
+          if ((y > button1_y1) and (y < button1_y2))  // Random
           then
+          begin
+            random_maze:= true;
             Action1;
+          end;
           
-          if ((y > button2_y1) and (y < button2_y2))
+          if ((y > button2_y1) and (y < button2_y2)) // Load maze
           then
           begin
             ClearWindow;
@@ -2278,6 +2309,8 @@ begin
             SetBrushColor(clWhite);
             
             LoadWindow('src/mazes/my_maze');
+            
+            random_maze:= false;
             
             DrawGameButtons();
             in_game:= true;
