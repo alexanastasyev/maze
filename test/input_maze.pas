@@ -10,8 +10,6 @@ Uses
 Const
   active = maze_color;
   unactive = clLightBlue;
-  
- 
 
 Procedure DrawUnactiveWalls();
 var
@@ -980,18 +978,9 @@ begin
       begin
         SetPenWidth(line_size);
         SetPenColor(clWhite);
-        MoveTo(i ,j);
-        LineTo(i + cell_size,j);
-        
-        if ((GetPixel(i, j - line_size) = GetPixel(1,2)) and (GetPixel(i, j + line_size) = GetPixel(1,2)))
-        then
-        begin
-          SetPenColor(active);
-          MoveTo(i, j - line_size);
-          LineTo(i, j + line_size);
-        end;
-                
-        MoveTo(i,j);
+        MoveTo(i, j);
+        LineTo(i + cell_size, j);       
+        MoveTo(i, j);
       end;
       if (GetPixel(i,j+line_size) = GetPixel(1,1))
       then
@@ -999,18 +988,8 @@ begin
         SetPenWidth(line_size);
         SetPenColor(clWhite);
         MoveTo(i, j);
-        LineTo(i,j + cell_size);
-        
-        if ((GetPixel(i - line_size, j) = GetPixel(1,2)) and (GetPixel(i + line_size, j) = GetPixel(1,2)))
-        then
-        begin
-          SetPenColor(active);
-          MoveTo(i - line_size, j);
-          LineTo(i + line_size, j);
-        end;
-        
-        MoveTo(i,j);
-        
+        LineTo(i, j + cell_size);
+        MoveTo(i, j);
       end;
       
       if ((GetPixel(i - line_size, j) = GetPixel(1,2))
