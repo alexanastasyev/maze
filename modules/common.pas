@@ -26,6 +26,34 @@ Type
 Var
   optimal_solution_moves: integer;
   win_checker: boolean;
+
+Procedure DrawFinish();
+begin
+  // Draw finish
+  MoveTo(width-indent, height-indent);
+  SetPenColor(clWhite);
+  SetPenWidth(line_size);
+  LineTo(width-indent, height-cell_size-indent);
+  SetPenColor(maze_color);
+  SetPenWidth(line_size);
+end;
+
+Procedure DrawBorderWalls();
+Begin
+  
+  // Set pen settings
+  SetPenColor(maze_color);
+  SetPenWidth(line_size);
+  
+  // Draw border
+  MoveTo(indent, indent);
+  LineTo(indent, height-indent);
+  LineTo(width-indent, height-indent);
+  LineTo(width-indent, indent);
+  LineTo(indent, indent);
+  MoveTo(2*indent, 2*indent);
+  
+end; 
   
 // Set player to position with x,y - top left cornner  
 Procedure SetPlayer(x: integer; y: integer);

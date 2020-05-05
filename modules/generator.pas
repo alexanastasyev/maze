@@ -40,12 +40,7 @@ begin
   SetPenWidth(line_size);
   
   // Draw border
-  MoveTo(indent, indent);
-  LineTo(indent, height-indent);
-  LineTo(width-indent, height-indent);
-  LineTo(width-indent, indent);
-  LineTo(indent, indent);
-  MoveTo(2*indent, 2*indent);
+  DrawBorderWalls;
   
   SetPlayer(PenX, PenY);
   
@@ -625,12 +620,7 @@ begin
   end;
     
   // Draw finish
-  MoveTo(width-indent, height-indent);
-  SetPenColor(clWhite);
-  SetPenWidth(line_size);
-  LineTo(width-indent, height-cell_size-indent);
-  SetPenColor(maze_color);
-  SetPenWidth(line_size);
+  DrawFinish;
   
   RemoveTrack();
 

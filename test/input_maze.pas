@@ -4,27 +4,14 @@ Uses
   GraphABC;
 Uses
   common in '../modules/common.pas';
+Uses
+  optimal_solver in '../modules/optimal_solver.pas';
   
 Const
   active = maze_color;
   unactive = clLightBlue;
   
-Procedure DrawBorderWalls();
-Begin
-  
-  // Set pen settings
-  SetPenColor(maze_color);
-  SetPenWidth(line_size);
-  
-  // Draw border
-  MoveTo(indent, indent);
-  LineTo(indent, height-indent);
-  LineTo(width-indent, height-indent);
-  LineTo(width-indent, indent);
-  LineTo(indent, indent);
-  MoveTo(2*indent, 2*indent);
-  
-end;  
+ 
 
 Procedure DrawUnactiveWalls();
 var
@@ -61,17 +48,6 @@ begin
   end;
     
   
-end;
-
-Procedure DrawFinish();
-begin
-  // Draw finish
-  MoveTo(width-indent, height-indent);
-  SetPenColor(clWhite);
-  SetPenWidth(line_size);
-  LineTo(width-indent, height-cell_size-indent);
-  SetPenColor(maze_color);
-  SetPenWidth(line_size);
 end;
 
 Procedure WallAction(x, y: integer; horizontal: boolean);
@@ -1006,7 +982,8 @@ begin
         SetPenColor(clWhite);
         MoveTo(i ,j);
         LineTo(i + cell_size,j);
-        if ((GetPixel(i - line_size, j) = GetPixel(1,2)) 
+        
+          if ((GetPixel(i - line_size, j) = GetPixel(1,2)) 
          or (GetPixel(i + line_size, j) = GetPixel(1,2))
          or (GetPixel(i, j + line_size) = GetPixel(1,2))
          or (GetPixel(i, j - line_size) = GetPixel(1,2)))
@@ -1014,8 +991,18 @@ begin
         begin
           MoveTo(i - 1, j);
           SetPenColor(active);
-          LineTo(i+1,j);
+          LineTo(i + 1,j);
+          
+          MoveTo(i - 1, j - 1);
+          SetPenColor(active);
+          LineTo(i + 1, j - 1);
+          
+          MoveTo(i - 1, j + 1);
+          SetPenColor(active);
+          LineTo(i + 1, j + 1);
+          
         end;
+        
         MoveTo(i,j);
       end;
       if (GetPixel(i,j+line_size) = GetPixel(1,1))
@@ -1025,17 +1012,28 @@ begin
         SetPenColor(clWhite);
         MoveTo(i, j);
         LineTo(i,j + cell_size);
+        
         if ((GetPixel(i - line_size, j) = GetPixel(1,2)) 
-         or (GetPixel(i + line_size, j) = GetPixel(1,2))
-         or (GetPixel(i, j + line_size) = GetPixel(1,2))
-         or (GetPixel(i, j - line_size) = GetPixel(1,2)))
-        then
-        begin
-          MoveTo(i, j - 1);
-          SetPenColor(active);
-          LineTo(i, j+1);
-        end;
+       or (GetPixel(i + line_size, j) = GetPixel(1,2))
+       or (GetPixel(i, j + line_size) = GetPixel(1,2))
+       or (GetPixel(i, j - line_size) = GetPixel(1,2)))
+      then
+      begin
+        MoveTo(i, j - 1);
+        SetPenColor(active);
+        LineTo(i, j + 1);
+        
+        MoveTo(i - 1, j - 1);
+        SetPenColor(active);
+        LineTo(i - 1, j + 1);
+        
+        MoveTo(i + 1, j - 1);
+        SetPenColor(active);
+        LineTo(i + 1, j + 1);
+        
+      end;
         MoveTo(i,j);
+        
       end;
       
       j:= j + cell_size;
@@ -1044,9 +1042,24 @@ begin
   i:= i + cell_size;
   
   end;
-    
+  
+   
+  
   DrawBorderWalls();
   DrawFinish();
+  
+end;
+
+Procedure InputKeyDown(key: integer);
+
+begin
+  
+  if (key = VK_F5)
+  then
+  begin
+    RemoveUnactive;
+    SaveWindow('MyMaze');
+  end;
   
 end;
 
@@ -1057,6 +1070,7 @@ begin
   DrawBorderWalls;
   DrawFinish();
   OnMouseDown:= InputMouseDown;
+  OnKeyDown:= InputKeyDown;
   
 end;
 
