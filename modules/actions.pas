@@ -8,34 +8,11 @@ Uses
   optimal_solver;
 Uses 
   common;
+// Uses input_maze;
 
 Const
- 
-  //-------buttons` coordinates begin-------//
-  
-  button_x1 = width + 10;
-  button_x2 = width + 180;
-  
-  
-  button1_y1 = round((4/24)*height);
-  button1_y2 = round((6/24)*height);
-  
-  button2_y1 = round((7/24)*height);
-  button2_y2 = round((9/24)*height);
-  
-  button3_y1 = round((10/24)*height);
-  button3_y2 = round((12/24)*height);
-  
-  button4_y1 = round((13/24)*height);
-  button4_y2 = round((15/24)*height);
-  
-  button_menu_y1 = round((1/24)*height);
-  button_menu_y2 = round((3/24)*height);
-  
-  button_ok_y1 = round((21/24)*height);
-  button_ok_y2 = round((23/24)*height);
-
-  //-------buttons` coordinates end-------//
+  active = maze_color;
+  unactive = clLightGray;
 
 Var
   counter: integer;
@@ -44,6 +21,8 @@ Var
   check_menu: byte;
   in_game: boolean;
   score: integer;
+  action: integer;
+  input_menu: boolean;
   
 // Draws formated button in rectangle with x1,y1-x2,y2 coordinates and text s
 Procedure MakeSpecialButton(x1,y1,x2,y2: integer; s: string);
@@ -97,13 +76,16 @@ begin
                     button_x2, button1_y2, '     Start');
                     
   MakeSpecialButton(button_x1, button2_y1, 
-                    button_x2, button2_y2, 'How to play');
+                    button_x2, button2_y2, ' New maze');
   
   MakeSpecialButton(button_x1, button3_y1, 
-                    button_x2, button3_y2, 'High scores');
+                    button_x2, button3_y2, 'How to play');
                     
   MakeSpecialButton(button_x1, button4_y1, 
-                    button_x2, button4_y2, '      Exit');
+                    button_x2, button4_y2, 'High scores');
+                    
+  MakeSpecialButton(button_x1, button5_y1, 
+                    button_x2, button5_y2, '      Exit');
   
   SetFontSize(current_size);
   SetFontColor(current_color);
@@ -404,7 +386,7 @@ Begin
   begin
     
     SetBrushColor(clWhite);
-    FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button4_y2 + 2);
+    FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button5_y2 + 2);
     MakeSpecialButton(button_x1, button_ok_y1, button_x2, button_ok_y2, '  Confirm');
     
     
@@ -750,6 +732,175 @@ begin
   
 end;
 
+Procedure DrawUnactiveWalls();
+var
+  i,j: integer;
+  
+begin
+   
+  i:= indent;
+  while (i < width - indent) do
+  begin
+    
+    j:= indent;
+    
+    while (j < height - indent) do
+    begin
+      
+      SetPenWidth(line_size);
+      SetPenColor(unactive);
+      MoveTo(i,j);
+      LineTo(i,j+cell_size+1);
+      MoveTo(i,j);
+      
+      SetPenWidth(line_size);
+      SetPenColor(unactive);
+      MoveTo(i, j);
+      LineTo(i+cell_size+1,j);
+      MoveTo(i,j);
+      
+      j:= j + cell_size;
+    end;
+  
+  i:= i + cell_size;
+  
+  end;
+    
+  
+end;
+
+Procedure WallAction(x, y: integer; horizontal: boolean);
+begin
+  
+  SetPixel(1,1, active);
+  
+  if ((horizontal) and (GetPixel(x + 5,y) = GetPixel(1,1)))
+  then
+    SetPenColor(unactive);
+  
+  if ((horizontal) and (GetPixel(x + 5,y) <> GetPixel(1,1)))
+  then
+    SetPenColor(active);
+  
+  if (not(horizontal) and (GetPixel(x,y + 5) = GetPixel(1,1)))
+  then
+    SetPenColor(unactive);
+  
+  if (not(horizontal) and (GetPixel(x,y + 5) <> GetPixel(1,1)))
+  then
+    SetPenColor(active);
+  
+  SetPenWidth(line_size);
+  MoveTo(x,y);
+  
+  if (horizontal)
+  then
+    LineTo(x + cell_size, y)
+  else
+    LineTo(x, y + cell_size);
+  
+  DrawBorderWalls();
+  DrawFinish();
+  
+end;
+
+Procedure RemoveUnactive();
+var
+  i,j: integer;
+  
+begin
+   
+  i:= indent;
+  while (i < width - indent) do
+  begin
+    
+    j:= indent;
+    
+    while (j < height - indent) do
+    begin
+      SetPixel(1,1, unactive);
+      SetPixel(1,2, active);
+      if (GetPixel(i + line_size,j) = GetPixel(1,1))
+      then
+      begin
+        SetPenWidth(line_size);
+        SetPenColor(clWhite);
+        MoveTo(i, j);
+        LineTo(i + cell_size, j);       
+        MoveTo(i, j);
+      end;
+      if (GetPixel(i,j+line_size) = GetPixel(1,1))
+      then
+      begin
+        SetPenWidth(line_size);
+        SetPenColor(clWhite);
+        MoveTo(i, j);
+        LineTo(i, j + cell_size);
+        MoveTo(i, j);
+      end;
+      
+      if ((GetPixel(i - line_size, j) = GetPixel(1,2))
+       or (GetPixel(i + line_size, j) = GetPixel(1,2))
+       or (GetPixel(i, j - line_size) = GetPixel(1,2))
+       or (GetPixel(i, j + line_size) = GetPixel(1,2)))
+      then
+      begin
+        SetBrushColor(active);
+        SetPenColor(active);
+        SetPixel(i,j,active);
+        
+        FillRectangle(i - 1, j - 1, i + 2, j + 2);        
+      end;
+      
+      j:= j + cell_size;
+    end;
+  
+  i:= i + cell_size;
+  
+  end;
+  
+   
+  
+  DrawBorderWalls();
+  DrawFinish();
+  
+  SetBrushColor(clWhite);
+  
+end;
+
+Procedure DrawInputMenu();
+Begin
+  
+  SetFontSize(30);
+  SetFontColor(clLightGreen);
+  TextOut(width + 30, round((1/24*height)), 'MENU');
+  
+  
+  MakeSpecialButton(button_x1, button1_y1, 
+                    button_x2, button1_y2, '     Save');
+                    
+  MakeSpecialButton(button_x1, button2_y1, 
+                    button_x2, button2_y2, '   Discard');
+  
+  MakeSpecialButton(button_x1, button3_y1, 
+                    button_x2, button3_y2, '      Exit');
+                    
+end;
+
+Procedure StartInput();
+begin
+  
+  ClearWindow;
+  DrawInputMenu();
+  
+  action:= 0; // input menu
+  
+  DrawUnactiveWalls();
+  DrawBorderWalls;
+  DrawFinish();
+  
+end;
+
 // Catch mouse down
 Procedure MenuMouseDown(x, y, mousebutton: integer);
 var
@@ -758,8 +909,1017 @@ var
   temps: string;
   tempint: integer;
   str_help: string;
+  x_start: integer;
+  y_start: integer;
+  horizontal: boolean;
+  vertical: boolean;
   
 begin
+  
+  if (input_menu)
+  then
+  begin
+  
+  if ((x > button_x1) and (x < button_x2) and (mousebutton = 1))
+  then
+  begin
+    
+    case action of
+    0: // input menu
+      begin
+        
+        if (y > button1_y1) and (y < button1_y2)
+        then
+        begin
+          action:= 1; // save
+          DrawConfirmButtons();
+        end;
+              
+        if (y > button2_y1) and (y < button2_y2)
+        then
+        begin
+          action:= 2; // discard
+          DrawConfirmButtons();
+        end;
+              
+        if (y > button3_y1) and (y < button3_y2)
+        then
+        begin
+          action:= 4; // exit
+          DrawConfirmButtons();
+        end;
+              
+        if (y > button_menu_y1) and (y < button_menu_y2)
+        then
+        begin
+          action:= 3; // main menu
+          DrawConfirmButtons();
+        end;
+      end;
+    
+    1: // confirm save
+      begin
+        
+        if ((y > button1_y1) and (y < button1_y2)) // yes
+        then
+        begin
+          RemoveUnactive;
+          SaveWindow('src/mazes/my_maze');
+          FillRectangle(width + indent, 0, width + 200, 200);
+          DrawInputMenu();
+          action:= 0; // input menu
+          
+          input_menu:= false;
+          Action0;
+        end;
+        
+        if ((y > button2_y1) and (y < button2_y2)) // no
+        then
+        begin
+          SetBrushColor(clWhite);
+          FillRectangle(width + indent, 0, width + 200, 200);
+          DrawInputMenu();
+          action:= 0; // input menu
+        end;
+        
+      end;
+      
+    2: // confirm discard
+      begin
+        
+        if ((y > button1_y1) and (y < button1_y2)) // yes
+        then
+        begin
+          ClearWindow;
+          DrawInputMenu();
+          
+          action:= 0; // input menu
+          
+          DrawUnactiveWalls();
+          DrawBorderWalls;
+          DrawFinish();
+        end;
+        
+        if ((y > button2_y1) and (y < button2_y2)) // no
+        then
+        begin
+          FillRectangle(width + indent, 0, width + 200, 200);
+          DrawInputMenu();
+          action:= 0; // input menu
+        end;
+        
+      end;
+      
+    3: // confirm main menu
+      begin
+        if ((y > button1_y1) and (y < button1_y2)) // yes
+        then
+        begin
+          input_menu:= false;
+          Action0;
+        end;
+        
+        if ((y > button2_y1) and (y < button2_y2)) // no
+        then
+        begin
+          FillRectangle(width + indent, 0, width + 200, 200);
+          DrawInputMenu();
+          action:= 0; // input menu
+        end;
+      end;
+      
+    4: // confirm exit
+      begin
+        
+        if ((y > button1_y1) and (y < button1_y2)) // yes
+        then
+        begin
+          CloseWindow;
+        end;
+        
+        if ((y > button2_y1) and (y < button2_y2)) // no
+        then
+        begin
+          FillRectangle(width + indent, 0, width + 200, 200);
+          DrawInputMenu();
+          action:= 0; // input menu
+        end;
+        
+      end;
+        
+     end; // case
+  end
+  
+  else
+  begin
+  
+  if (mousebutton = 1)
+  then
+  begin
+    
+    x_start:= 0;
+    y_start:= 0;
+    
+    case x of
+      
+      (indent + line_size + 1)..(indent + cell_size - line_size): // 1
+      begin
+        x_start:= indent + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + cell_size + 1)..(indent + 2*cell_size - line_size): // 2
+      begin
+        x_start:= indent + cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 2*cell_size + 1)..(indent + 3*cell_size - line_size): // 3
+      begin
+        x_start:= indent + 2*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 3*cell_size + 1)..(indent + 4*cell_size - line_size): // 4
+      begin
+        x_start:= indent + 3*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 4*cell_size + 1)..(indent + 5*cell_size - line_size): // 5
+      begin
+        x_start:= indent + 4*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 5*cell_size + 1)..(indent + 6*cell_size - line_size): // 6
+      begin
+        x_start:= indent + 5*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 6*cell_size + 1)..(indent + 7*cell_size - line_size): // 7
+      begin
+        x_start:= indent + 6*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 7*cell_size + 1)..(indent + 8*cell_size - line_size): // 8
+      begin
+        x_start:= indent + 7*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 8*cell_size + 1)..(indent + 9*cell_size - line_size): // 9
+      begin
+        x_start:= indent + 8*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 9*cell_size + 1)..(indent + 10*cell_size - line_size): // 10
+      begin
+        x_start:= indent + 9*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 10*cell_size + 1)..(indent + 11*cell_size - line_size): // 11
+      begin
+        x_start:= indent + 10*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 11*cell_size + 1)..(indent + 12*cell_size - line_size): // 12
+      begin
+        x_start:= indent + 11*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 12*cell_size + 1)..(indent + 13*cell_size - line_size): // 13
+      begin
+        x_start:= indent + 12*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 13*cell_size + 1)..(indent + 14*cell_size - line_size): // 14
+      begin
+        x_start:= indent + 13*cell_size + 1;
+        horizontal:= true;
+      end;
+            
+      (indent + line_size + 14*cell_size + 1)..(indent + 15*cell_size - line_size): // 15
+      begin
+        x_start:= indent + 14*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 15*cell_size + 1)..(indent + 16*cell_size - line_size): // 16
+      begin
+        x_start:= indent + 15*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 16*cell_size + 1)..(indent + 17*cell_size - line_size): // 17
+      begin
+        x_start:= indent + 16*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 17*cell_size + 1)..(indent + 18*cell_size - line_size): // 18
+      begin
+        x_start:= indent + 17*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 18*cell_size + 1)..(indent + 19*cell_size - line_size): // 19
+      begin
+        x_start:= indent + 18*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 19*cell_size + 1)..(indent + 20*cell_size - line_size): // 20
+      begin
+        x_start:= indent + 19*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 20*cell_size + 1)..(indent + 21*cell_size - line_size): // 21
+      begin
+        x_start:= indent + 20*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 21*cell_size + 1)..(indent + 22*cell_size - line_size): // 22
+      begin
+        x_start:= indent + 21*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 22*cell_size + 1)..(indent + 23*cell_size - line_size): // 23
+      begin
+        x_start:= indent + 22*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 23*cell_size + 1)..(indent + 24*cell_size - line_size): // 24
+      begin
+        x_start:= indent + 23*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 24*cell_size + 1)..(indent + 25*cell_size - line_size): // 25
+      begin
+        x_start:= indent + 24*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 25*cell_size + 1)..(indent + 26*cell_size - line_size): // 26
+      begin
+        x_start:= indent + 25*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 26*cell_size + 1)..(indent + 27*cell_size - line_size): // 27
+      begin
+        x_start:= indent + 26*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 27*cell_size + 1)..(indent + 28*cell_size - line_size): // 28
+      begin
+        x_start:= indent + 27*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 28*cell_size + 1)..(indent + 29*cell_size - line_size): // 29
+      begin
+        x_start:= indent + 28*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 29*cell_size + 1)..(indent + 30*cell_size - line_size): // 30
+      begin
+        x_start:= indent + 29*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 30*cell_size + 1)..(indent + 31*cell_size - line_size): // 31
+      begin
+        x_start:= indent + 30*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 31*cell_size + 1)..(indent + 32*cell_size - line_size): // 32
+      begin
+        x_start:= indent + 31*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 32*cell_size + 1)..(indent + 33*cell_size - line_size): // 33
+      begin
+        x_start:= indent + 32*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 33*cell_size + 1)..(indent + 34*cell_size - line_size): // 34
+      begin
+        x_start:= indent + 33*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 34*cell_size + 1)..(indent + 35*cell_size - line_size): // 35
+      begin
+        x_start:= indent + 34*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 35*cell_size + 1)..(indent + 36*cell_size - line_size): // 36
+      begin
+        x_start:= indent + 35*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 36*cell_size + 1)..(indent + 37*cell_size - line_size): // 37
+      begin
+        x_start:= indent + 36*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 37*cell_size + 1)..(indent + 38*cell_size - line_size): // 38
+      begin
+        x_start:= indent + 37*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 38*cell_size + 1)..(indent + 39*cell_size - line_size): // 39
+      begin
+        x_start:= indent + 38*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      (indent + line_size + 39*cell_size + 1)..(indent + 40*cell_size - line_size): // 40
+      begin
+        x_start:= indent + 39*cell_size + 1;
+        horizontal:= true;
+      end;
+      
+      //-----------------------------------------------------------------------------------------
+      
+      (indent + cell_size)..(indent + cell_size + line_size): // 1-2
+      begin
+        x_start:= indent + cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 2*cell_size)..(indent + 2*cell_size + line_size): // 2-3
+      begin
+        x_start:= indent + 2*cell_size;
+        horizontal:= false;
+      end;
+  
+      (indent + 3*cell_size)..(indent + 3*cell_size + line_size): // 3-4
+      begin
+        x_start:= indent + 3*cell_size;
+        horizontal:= false;
+      end;
+
+      (indent + 4*cell_size)..(indent + 4*cell_size + line_size): // 4-5
+      begin
+        x_start:= indent + 4*cell_size;
+        horizontal:= false;
+      end;
+
+      (indent + 5*cell_size)..(indent + 5*cell_size + line_size): // 5-6
+      begin
+        x_start:= indent + 5*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 6*cell_size)..(indent + 6*cell_size + line_size): // 6-7
+      begin
+        x_start:= indent + 6*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 7*cell_size)..(indent + 7*cell_size + line_size): // 7-8
+      begin
+        x_start:= indent + 7*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 8*cell_size)..(indent + 8*cell_size + line_size): // 8-9
+      begin
+        x_start:= indent + 8*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 9*cell_size)..(indent + 9*cell_size + line_size): // 9-10
+      begin
+        x_start:= indent + 9*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 10*cell_size)..(indent + 10*cell_size + line_size): // 10-11
+      begin
+        x_start:= indent + 10*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 11*cell_size)..(indent + 11*cell_size + line_size): // 11-12
+      begin
+        x_start:= indent + 11*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 12*cell_size)..(indent + 12*cell_size + line_size): // 12-13
+      begin
+        x_start:= indent + 12*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 13*cell_size)..(indent + 13*cell_size + line_size): // 13-14
+      begin
+        x_start:= indent + 13*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 14*cell_size)..(indent + 14*cell_size + line_size): // 14-15
+      begin
+        x_start:= indent + 14*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 15*cell_size)..(indent + 15*cell_size + line_size): // 15-16
+      begin
+        x_start:= indent + 15*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 16*cell_size)..(indent + 16*cell_size + line_size): // 16-17
+      begin
+        x_start:= indent + 16*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 17*cell_size)..(indent + 17*cell_size + line_size): // 17-18
+      begin
+        x_start:= indent + 17*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 18*cell_size)..(indent + 18*cell_size + line_size): // 18-19
+      begin
+        x_start:= indent + 18*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 19*cell_size)..(indent + 19*cell_size + line_size): // 19-20
+      begin
+        x_start:= indent + 19*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 20*cell_size)..(indent + 20*cell_size + line_size): // 20-21
+      begin
+        x_start:= indent + 20*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 21*cell_size)..(indent + 21*cell_size + line_size): // 21-22
+      begin
+        x_start:= indent + 21*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 22*cell_size)..(indent + 22*cell_size + line_size): // 22-23
+      begin
+        x_start:= indent + 22*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 23*cell_size)..(indent + 23*cell_size + line_size): // 23-24
+      begin
+        x_start:= indent + 23*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 24*cell_size)..(indent + 24*cell_size + line_size): // 24-25
+      begin
+        x_start:= indent + 24*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 25*cell_size)..(indent + 25*cell_size + line_size): // 25-26
+      begin
+        x_start:= indent + 25*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 26*cell_size)..(indent + 26*cell_size + line_size): // 26-27
+      begin
+        x_start:= indent + 26*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 27*cell_size)..(indent + 27*cell_size + line_size): // 27-28
+      begin
+        x_start:= indent + 27*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 28*cell_size)..(indent + 28*cell_size + line_size): // 28-29
+      begin
+        x_start:= indent + 28*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 29*cell_size)..(indent + 29*cell_size + line_size): // 29-30
+      begin
+        x_start:= indent + 29*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 30*cell_size)..(indent + 30*cell_size + line_size): // 30-31
+      begin
+        x_start:= indent + 30*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 31*cell_size)..(indent + 31*cell_size + line_size): // 31-32
+      begin
+        x_start:= indent + 31*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 32*cell_size)..(indent + 32*cell_size + line_size): // 32-33
+      begin
+        x_start:= indent + 32*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 33*cell_size)..(indent + 33*cell_size + line_size): // 33-34
+      begin
+        x_start:= indent + 33*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 34*cell_size)..(indent + 34*cell_size + line_size): // 34-35
+      begin
+        x_start:= indent + 34*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 35*cell_size)..(indent + 35*cell_size + line_size): // 35-36
+      begin
+        x_start:= indent + 35*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 36*cell_size)..(indent + 36*cell_size + line_size): // 36-37
+      begin
+        x_start:= indent + 36*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 37*cell_size)..(indent + 37*cell_size + line_size): // 37-38
+      begin
+        x_start:= indent + 37*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 38*cell_size)..(indent + 38*cell_size + line_size): // 38-39
+      begin
+        x_start:= indent + 38*cell_size;
+        horizontal:= false;
+      end;
+      
+      (indent + 39*cell_size)..(indent + 39*cell_size + line_size): // 39-40
+      begin
+        x_start:= indent + 39*cell_size;
+        horizontal:= false;
+      end;
+      
+      else
+        x_start:= 0;
+      
+    end;
+    
+    // -------------------------------------------------------------------------
+    
+    case y of
+      
+      (indent + line_size)..(indent + cell_size - line_size): // 1
+      begin
+        y_start:= indent + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + cell_size + 1)..(indent + 2*cell_size - line_size): // 2
+      begin
+        y_start := indent + cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 2*cell_size + 1)..(indent + 3*cell_size - line_size): // 3
+      begin
+        y_start := indent + 2*cell_size + 1;
+        vertical:= true;
+      end;
+      
+           (indent + line_size + 3*cell_size + 1)..(indent + 4*cell_size - line_size): // 4
+      begin
+        y_start:= indent + 3*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 4*cell_size + 1)..(indent + 5*cell_size - line_size): // 5
+      begin
+        y_start:= indent + 4*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 5*cell_size + 1)..(indent + 6*cell_size - line_size): // 6
+      begin
+        y_start:= indent + 5*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 6*cell_size + 1)..(indent + 7*cell_size - line_size): // 7
+      begin
+        y_start:= indent + 6*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 7*cell_size + 1)..(indent + 8*cell_size - line_size): // 8
+      begin
+        y_start:= indent + 7*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 8*cell_size + 1)..(indent + 9*cell_size - line_size): // 9
+      begin
+        y_start:= indent + 8*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 9*cell_size + 1)..(indent + 10*cell_size - line_size): // 10
+      begin
+        y_start:= indent + 9*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 10*cell_size + 1)..(indent + 11*cell_size - line_size): // 11
+      begin
+        y_start:= indent + 10*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 11*cell_size + 1)..(indent + 12*cell_size - line_size): // 12
+      begin
+        y_start:= indent + 11*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 12*cell_size + 1)..(indent + 13*cell_size - line_size): // 13
+      begin
+        y_start:= indent + 12*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 13*cell_size + 1)..(indent + 14*cell_size - line_size): // 14
+      begin
+        y_start:= indent + 13*cell_size + 1;
+        vertical:= true;
+      end;
+            
+      (indent + line_size + 14*cell_size + 1)..(indent + 15*cell_size - line_size): // 15
+      begin
+        y_start:= indent + 14*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 15*cell_size + 1)..(indent + 16*cell_size - line_size): // 16
+      begin
+        y_start:= indent + 15*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 16*cell_size + 1)..(indent + 17*cell_size - line_size): // 17
+      begin
+        y_start:= indent + 16*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 17*cell_size + 1)..(indent + 18*cell_size - line_size): // 18
+      begin
+        y_start:= indent + 17*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 18*cell_size + 1)..(indent + 19*cell_size - line_size): // 19
+      begin
+        y_start:= indent + 18*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 19*cell_size + 1)..(indent + 20*cell_size - line_size): // 20
+      begin
+        y_start:= indent + 19*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 20*cell_size + 1)..(indent + 21*cell_size - line_size): // 21
+      begin
+        y_start:= indent + 20*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 21*cell_size + 1)..(indent + 22*cell_size - line_size): // 22
+      begin
+        y_start:= indent + 21*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 22*cell_size + 1)..(indent + 23*cell_size - line_size): // 23
+      begin
+        y_start:= indent + 22*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 23*cell_size + 1)..(indent + 24*cell_size - line_size): // 24
+      begin
+        y_start:= indent + 23*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 24*cell_size + 1)..(indent + 25*cell_size - line_size): // 25
+      begin
+        y_start:= indent + 24*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 25*cell_size + 1)..(indent + 26*cell_size - line_size): // 26
+      begin
+        y_start:= indent + 25*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 26*cell_size + 1)..(indent + 27*cell_size - line_size): // 27
+      begin
+        y_start:= indent + 26*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 27*cell_size + 1)..(indent + 28*cell_size - line_size): // 28
+      begin
+        y_start:= indent + 27*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 28*cell_size + 1)..(indent + 29*cell_size - line_size): // 29
+      begin
+        y_start:= indent + 28*cell_size + 1;
+        vertical:= true;
+      end;
+      
+      (indent + line_size + 29*cell_size + 1)..(indent + 30*cell_size - line_size): // 30
+      begin
+        y_start:= indent + 29*cell_size + 1;
+        vertical:= true;
+      end;
+
+      
+      //----------------------------------------------------------------------
+      
+      
+      (indent + cell_size)..(indent + cell_size + line_size): // 1-2
+      begin
+        y_start:= indent + cell_size;
+        vertical:= false;
+      end;
+             
+      (indent + 2*cell_size)..(indent + 2*cell_size + line_size): // 2-3
+      begin
+        y_start:= indent + 2*cell_size;
+        vertical:= false;
+      end;
+   
+      (indent + 3*cell_size)..(indent + 3*cell_size + line_size): // 3-4
+      begin
+        y_start:= indent + 3*cell_size;
+        vertical:= false;
+      end;
+      
+           (indent + 4*cell_size)..(indent + 4*cell_size + line_size): // 4-5
+      begin
+        y_start:= indent + 4*cell_size;
+        vertical:= false;
+      end;
+
+      (indent + 5*cell_size)..(indent + 5*cell_size + line_size): // 5-6
+      begin
+        y_start:= indent + 5*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 6*cell_size)..(indent + 6*cell_size + line_size): // 6-7
+      begin
+        y_start:= indent + 6*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 7*cell_size)..(indent + 7*cell_size + line_size): // 7-8
+      begin
+        y_start:= indent + 7*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 8*cell_size)..(indent + 8*cell_size + line_size): // 8-9
+      begin
+        y_start:= indent + 8*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 9*cell_size)..(indent + 9*cell_size + line_size): // 9-10
+      begin
+        y_start:= indent + 9*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 10*cell_size)..(indent + 10*cell_size + line_size): // 10-11
+      begin
+        y_start:= indent + 10*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 11*cell_size)..(indent + 11*cell_size + line_size): // 11-12
+      begin
+        y_start:= indent + 11*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 12*cell_size)..(indent + 12*cell_size + line_size): // 12-13
+      begin
+        y_start:= indent + 12*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 13*cell_size)..(indent + 13*cell_size + line_size): // 13-14
+      begin
+        y_start:= indent + 13*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 14*cell_size)..(indent + 14*cell_size + line_size): // 14-15
+      begin
+        y_start:= indent + 14*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 15*cell_size)..(indent + 15*cell_size + line_size): // 15-16
+      begin
+        y_start:= indent + 15*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 16*cell_size)..(indent + 16*cell_size + line_size): // 16-17
+      begin
+        y_start:= indent + 16*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 17*cell_size)..(indent + 17*cell_size + line_size): // 17-18
+      begin
+        y_start:= indent + 17*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 18*cell_size)..(indent + 18*cell_size + line_size): // 18-19
+      begin
+        y_start:= indent + 18*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 19*cell_size)..(indent + 19*cell_size + line_size): // 19-20
+      begin
+        y_start:= indent + 19*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 20*cell_size)..(indent + 20*cell_size + line_size): // 20-21
+      begin
+        y_start:= indent + 20*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 21*cell_size)..(indent + 21*cell_size + line_size): // 21-22
+      begin
+        y_start:= indent + 21*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 22*cell_size)..(indent + 22*cell_size + line_size): // 22-23
+      begin
+        y_start:= indent + 22*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 23*cell_size)..(indent + 23*cell_size + line_size): // 23-24
+      begin
+        y_start:= indent + 23*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 24*cell_size)..(indent + 24*cell_size + line_size): // 24-25
+      begin
+        y_start:= indent + 24*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 25*cell_size)..(indent + 25*cell_size + line_size): // 25-26
+      begin
+        y_start:= indent + 25*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 26*cell_size)..(indent + 26*cell_size + line_size): // 26-27
+      begin
+        y_start:= indent + 26*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 27*cell_size)..(indent + 27*cell_size + line_size): // 27-28
+      begin
+        y_start:= indent + 27*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 28*cell_size)..(indent + 28*cell_size + line_size): // 28-29
+      begin
+        y_start:= indent + 28*cell_size;
+        vertical:= false;
+      end;
+      
+      (indent + 29*cell_size)..(indent + 29*cell_size + line_size): // 29-30
+      begin
+        y_start:= indent + 29*cell_size;
+        vertical:= false;
+      end;
+
+      
+      else
+        y_start:= 0;
+      
+    end;
+    
+    if ((x_start <> 0) and (y_start <> 0) and not(horizontal and vertical) and (horizontal or vertical))
+    then
+      WallAction(x_start, y_start, horizontal);
+  end;
+  end;
+  end
+  
+  else
+  begin
   
   case check_menu of
   2: // others  
@@ -772,17 +1932,40 @@ begin
           
           if ((y > button1_y1) and (y < button1_y2)) // Start
           then
-            Action1();
+          begin
+            check_menu:= 10; // choose mode
+            
+            SetBrushColor(clWhite);
+            FillRectangle(width+line_size, 1, width + 200, height);
+            
+            SetFontSize(30);
+            SetFontColor(clLightGreen);
+            TextOut(width + 30, round((1/24*height)), 'MENU');
+            
+            
+            MakeSpecialButton(button_x1, button1_y1, 
+                              button_x2, button1_y2, '   Random');
+                              
+            MakeSpecialButton(button_x1, button2_y1, 
+                              button_x2, button2_y2, ' Load maze');
+          end;
           
-          if ((y > button2_y1) and (y < button2_y2)) // How to play
+          if ((y > button2_y1) and (y < button2_y2)) // Create maze
+          then
+          begin
+            input_menu:= true;
+            StartInput();
+          end;
+          
+          if ((y > button3_y1) and (y < button3_y2)) // How to play
           then
             Action2();
           
-          if ((y > button3_y1) and (y < button3_y2)) // High scores
+          if ((y > button4_y1) and (y < button4_y2)) // High scores
           then
             Action3();
           
-          if ((y > button4_y1) and (y < button4_y2)) // Exit
+          if ((y > button5_y1) and (y < button5_y2)) // Exit
           then
             Action4();
           
@@ -946,18 +2129,6 @@ begin
               check_menu:= 8; // after game
               FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button4_y2);
               
-              {
-              DrawGameButtons();
-              
-              SetFontColor(clBlack);
-              SetFontSize(12);
-              TextOut(width + 10, round((19/24)*height), 'Use arrows to play');
-
-              SetBrushColor(clWhite);
-              SetFontSize(22);
-              TextOut(width + 10, round((17/24)*height), 'MOVES: ');
-              TextOut(width + 130, round((17/24)*height), '0');
-              }
               FindPath(PenX, PenY);
               counter:=counter + 100002;
               MakeSpecialButton(button_x1, button_ok_y1, button_x2, button_ok_y2, '       Ok');
@@ -1109,7 +2280,63 @@ begin
       end;
         end;
     end;
-   
+  
+  10: // choose mode
+    begin
+      
+      if (mousebutton = 1)
+      then
+        if ((x > button_x1) and (x < button_x2))
+        then
+        begin
+          
+          if ((y > button_menu_y1) and (y < button_menu_y2))
+          then
+            Action0;
+          
+          if ((y > button1_y1) and (y < button1_y2))
+          then
+            Action1;
+          
+          if ((y > button2_y1) and (y < button2_y2))
+          then
+          begin
+            ClearWindow;
+  
+            SetBrushColor(clWhite);
+            
+            LoadWindow('src/mazes/my_maze');
+            
+            DrawGameButtons();
+            in_game:= true;
+            check_menu:= 1; // game
+            counter:= 0;
+            win_checker:= false;
+            
+            SetFontColor(clBlack);
+            SetFontSize(12);
+            TextOut(width + 10, round((19/24)*height), 'Use arrows to play');
+            
+            SetBrushColor(clWhite);
+            SetFontSize(22);
+            TextOut(width + 10, round((17/24)*height), 'MOVES: ');
+            TextOut(width + 130, round((17/24)*height), '0');
+          
+            
+            // Set start position
+            MoveTo(2*indent, 2*indent);
+            SetPlayer(PenX, PenY);
+          
+            // Catch key tapping
+            OnKeyDown:= GameKeyDown;
+                      
+          end;
+          
+        end;
+      
+    end;
+  
+  end;
   end;
 end; // MenuMouseDown
 

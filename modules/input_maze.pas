@@ -3,13 +3,16 @@
 Uses
   GraphABC;
 Uses
-  common in '../modules/common.pas';
+  common;
 Uses
-  optimal_solver in '../modules/optimal_solver.pas';
+  optimal_solver;
   
 Const
   active = maze_color;
-  unactive = clLightBlue;
+  unactive = clLightGray;
+
+Var
+  action: integer;
 
 Procedure DrawUnactiveWalls();
 var
@@ -83,6 +86,119 @@ begin
   
 end;
 
+Procedure RemoveUnactive();
+var
+  i,j: integer;
+  
+begin
+   
+  i:= indent;
+  while (i < width - indent) do
+  begin
+    
+    j:= indent;
+    
+    while (j < height - indent) do
+    begin
+      SetPixel(1,1, unactive);
+      SetPixel(1,2, active);
+      if (GetPixel(i + line_size,j) = GetPixel(1,1))
+      then
+      begin
+        SetPenWidth(line_size);
+        SetPenColor(clWhite);
+        MoveTo(i, j);
+        LineTo(i + cell_size, j);       
+        MoveTo(i, j);
+      end;
+      if (GetPixel(i,j+line_size) = GetPixel(1,1))
+      then
+      begin
+        SetPenWidth(line_size);
+        SetPenColor(clWhite);
+        MoveTo(i, j);
+        LineTo(i, j + cell_size);
+        MoveTo(i, j);
+      end;
+      
+      if ((GetPixel(i - line_size, j) = GetPixel(1,2))
+       or (GetPixel(i + line_size, j) = GetPixel(1,2))
+       or (GetPixel(i, j - line_size) = GetPixel(1,2))
+       or (GetPixel(i, j + line_size) = GetPixel(1,2)))
+      then
+      begin
+        SetBrushColor(active);
+        SetPenColor(active);
+        SetPixel(i,j,active);
+        
+        FillRectangle(i - 1, j - 1, i + 2, j + 2);        
+      end;
+      
+      j:= j + cell_size;
+    end;
+  
+  i:= i + cell_size;
+  
+  end;
+  
+   
+  
+  DrawBorderWalls();
+  DrawFinish();
+  
+  SetBrushColor(clWhite);
+  
+end;
+
+Procedure DrawInputMenu();
+Begin
+  
+  SetFontSize(30);
+  SetFontColor(clLightGreen);
+  TextOut(width + 30, round((1/24*height)), 'MENU');
+  
+  
+  MakeSpecialButton(button_x1, button1_y1, 
+                    button_x2, button1_y2, '     Save');
+                    
+  MakeSpecialButton(button_x1, button2_y1, 
+                    button_x2, button2_y2, '   Discard');
+  
+  MakeSpecialButton(button_x1, button3_y1, 
+                    button_x2, button3_y2, '      Exit');
+                    
+end;
+
+Procedure DrawConfirmButtons();
+var
+  current_size: integer;
+  current_color: Color;
+  
+begin
+  current_size:= FontSize;
+  current_color:= FontColor;
+    
+  SetBrushColor(clWhite);
+  FillRectangle(width+line_size, 1, width + 200, height);
+  
+  
+  SetFontSize(30);
+  SetFontColor(clLightGreen);
+  TextOut(width + 25, round((1/24*height)), 'SURE?');
+  
+  
+  MakeSpecialButton(button_x1, button1_y1, 
+                    button_x2, button1_y2, '      Yes');
+                    
+  MakeSpecialButton(button_x1, button2_y1, 
+                    button_x2, button2_y2, '       No');
+  
+  
+  SetFontSize(current_size);
+  SetFontColor(current_color);
+  
+end;
+
 Procedure InputMouseDown(x, y, mousebutton: integer);
 var
   x_start: integer;
@@ -91,6 +207,125 @@ var
   vertical: boolean;
   
 begin
+  
+  if ((x > button_x1) and (x < button_x2) and (mousebutton = 1))
+  then
+  begin
+    
+    case action of
+    0: // input menu
+      begin
+        
+        if (y > button1_y1) and (y < button1_y2)
+        then
+        begin
+          action:= 1; // save
+          DrawConfirmButtons();
+        end;
+              
+        if (y > button2_y1) and (y < button2_y2)
+        then
+        begin
+          action:= 2; // discard
+          DrawConfirmButtons();
+        end;
+              
+        if (y > button3_y1) and (y < button3_y2)
+        then
+        begin
+          action:= 4; // exit
+          DrawConfirmButtons();
+        end;
+              
+        if (y > button_menu_y1) and (y < button_menu_y2)
+        then
+        begin
+          action:= 3; // main menu
+          DrawConfirmButtons();
+        end;
+      end;
+    
+    1: // confirm save
+      begin
+        
+        if ((y > button1_y1) and (y < button1_y2)) // yes
+        then
+        begin
+          RemoveUnactive;
+          SaveWindow('my_maze');
+          FillRectangle(width + indent, 0, width + 200, 200);
+          DrawInputMenu();
+          action:= 0; // input menu
+          
+          // go to main menu
+        end;
+        
+        if ((y > button2_y1) and (y < button2_y2)) // no
+        then
+        begin
+          SetBrushColor(clWhite);
+          FillRectangle(width + indent, 0, width + 200, 200);
+          DrawInputMenu();
+          action:= 0; // input menu
+        end;
+        
+      end;
+      
+    2: // confirm discard
+      begin
+        
+        if ((y > button1_y1) and (y < button1_y2)) // yes
+        then
+        begin
+          ClearWindow;
+          DrawInputMenu();
+          
+          action:= 0; // input menu
+          
+          DrawUnactiveWalls();
+          DrawBorderWalls;
+          DrawFinish();
+        end;
+        
+        if ((y > button2_y1) and (y < button2_y2)) // no
+        then
+        begin
+          FillRectangle(width + indent, 0, width + 200, 200);
+          DrawInputMenu();
+          action:= 0; // input menu
+        end;
+        
+      end;
+      
+    3: // confirm main menu
+      begin
+        
+      end;
+      
+    4: // confirm exit
+      begin
+        
+        if ((y > button1_y1) and (y < button1_y2)) // yes
+        then
+        begin
+          CloseWindow;
+        end;
+        
+        if ((y > button2_y1) and (y < button2_y2)) // no
+        then
+        begin
+          FillRectangle(width + indent, 0, width + 200, 200);
+          DrawInputMenu();
+          action:= 0; // input menu
+        end;
+        
+      end;
+        
+     end; // case
+  end
+  
+  else
+  begin
   
   if (mousebutton = 1)
   then
@@ -954,92 +1189,21 @@ begin
     then
       WallAction(x_start, y_start, horizontal);
   end;
-  
-end;
-
-Procedure RemoveUnactive();
-var
-  i,j: integer;
-  
-begin
-   
-  i:= indent;
-  while (i < width - indent) do
-  begin
-    
-    j:= indent;
-    
-    while (j < height - indent) do
-    begin
-      SetPixel(1,1, unactive);
-      SetPixel(1,2, active);
-      if (GetPixel(i + line_size,j) = GetPixel(1,1))
-      then
-      begin
-        SetPenWidth(line_size);
-        SetPenColor(clWhite);
-        MoveTo(i, j);
-        LineTo(i + cell_size, j);       
-        MoveTo(i, j);
-      end;
-      if (GetPixel(i,j+line_size) = GetPixel(1,1))
-      then
-      begin
-        SetPenWidth(line_size);
-        SetPenColor(clWhite);
-        MoveTo(i, j);
-        LineTo(i, j + cell_size);
-        MoveTo(i, j);
-      end;
-      
-      if ((GetPixel(i - line_size, j) = GetPixel(1,2))
-       or (GetPixel(i + line_size, j) = GetPixel(1,2))
-       or (GetPixel(i, j - line_size) = GetPixel(1,2))
-       or (GetPixel(i, j + line_size) = GetPixel(1,2)))
-      then
-      begin
-        SetBrushColor(active);
-        SetPenColor(active);
-        SetPixel(i,j,active);
-        
-        FillRectangle(i - 1, j - 1, i + 2, j + 2);        
-      end;
-      
-      j:= j + cell_size;
-    end;
-  
-  i:= i + cell_size;
-  
   end;
-  
-   
-  
-  DrawBorderWalls();
-  DrawFinish();
-  
-end;
-
-Procedure InputKeyDown(key: integer);
-
-begin
-  
-  if (key = VK_F5)
-  then
-  begin
-    RemoveUnactive;
-    SaveWindow('MyMaze');
-  end;
-  
 end;
 
 Procedure StartInput();
 begin
   
+  ClearWindow;
+  DrawInputMenu();
+  
+  action:= 0; // input menu
+  
   DrawUnactiveWalls();
   DrawBorderWalls;
   DrawFinish();
   OnMouseDown:= InputMouseDown;
-  OnKeyDown:= InputKeyDown;
   
 end;
 

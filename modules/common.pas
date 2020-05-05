@@ -20,12 +20,72 @@ Const
   finish_x = width;
   finish_y = height-indent-indent-player_size;
   
+  //-------buttons` coordinates begin-------//
+  
+  button_x1 = width + 10;
+  button_x2 = width + 180;
+  
+  
+  button1_y1 = round((4/24)*height);
+  button1_y2 = round((6/24)*height);
+  
+  button2_y1 = round((7/24)*height);
+  button2_y2 = round((9/24)*height);
+  
+  button3_y1 = round((10/24)*height);
+  button3_y2 = round((12/24)*height);
+  
+  button4_y1 = round((13/24)*height);
+  button4_y2 = round((15/24)*height);
+  
+  button5_y1 = round((16/24)*height);
+  button5_y2 = round((18/24)*height);
+  
+  button_menu_y1 = round((1/24)*height);
+  button_menu_y2 = round((3/24)*height);
+  
+  button_ok_y1 = round((21/24)*height);
+  button_ok_y2 = round((23/24)*height);
+
+  //-------buttons` coordinates end-------//
+  
+  
 Type
   stack = array[1..10000] of integer;
 
 Var
   optimal_solution_moves: integer;
   win_checker: boolean;
+
+// Draws formated button in rectangle with x1,y1-x2,y2 coordinates and text s
+Procedure MakeSpecialButton(x1,y1,x2,y2: integer; s: string);
+var
+  current_pen_color: color;
+  current_pen_width: integer;
+  current_font_size: integer;
+  current_font_color: color;
+  
+begin
+  
+  current_pen_color:= PenColor;
+  current_pen_width:= PenWidth;
+  current_font_size:= FontSize;
+  current_font_color:= FontColor;
+  
+  SetPenWidth(3);
+  SetPenColor(clLightBlue);
+  SetFontSize(22);
+  SetFontColor(clLightBlue);
+  
+  Rectangle(x1, y1, x2, y2);
+  TextOut(x1+2*indent, y1+2*indent, s);
+  
+  SetPenWidth(current_pen_width);
+  SetPenColor(current_pen_color);
+  SetFontSize(current_font_size);
+  SetFontColor(current_font_color);
+  
+end;
 
 Procedure DrawFinish();
 begin

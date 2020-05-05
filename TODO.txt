@@ -1,3 +1,2 @@
-- User maze input
 - Saving mazes into files
 - Loading saved mazes

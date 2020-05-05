@@ -1,12 +1,12 @@
-﻿Program test_input;
+﻿Program main;
 
-Uses
-  input_maze;
 Uses
   GraphABC;
 Uses
-  common in '../modules/common.pas';
-  
+  actions in 'modules/actions.pas';
+Uses
+  common in 'modules/common.pas';
+
 Begin
   
   // Set window
@@ -20,6 +20,6 @@ Begin
   SetBrushColor(clWhite);
   FillRectangle(1,1, width + 200, height);
   
-  StartInput();
+  MainMenu();
   
 end.

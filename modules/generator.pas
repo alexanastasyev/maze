@@ -574,6 +574,7 @@ begin
   
   // Draw blue lines 
   i:= indent {+ cell_size};
+  SetPixel(1,1, maze_color);
   while (i < width - indent) do
   begin
     
@@ -611,6 +612,17 @@ begin
         end;
       end
       else;
+      
+      if ((GetPixel(i - line_size, j) = GetPixel(1,2))
+       or (GetPixel(i + line_size, j) = GetPixel(1,2))
+       or (GetPixel(i, j - line_size) = GetPixel(1,2))
+       or (GetPixel(i, j + line_size) = GetPixel(1,2)))
+      then
+      begin
+        SetBrushColor(maze_color);
+        SetPenColor(maze_color);        
+        FillRectangle(i - 1, j - 1, i + 2, j + 2);        
+      end;
       
       j:= j + cell_size;
     end;
