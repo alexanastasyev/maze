@@ -226,12 +226,9 @@ Begin
 end; // MoveDown
 
 // get name
-procedure Input(Key: integer);
+procedure InputName(Key: integer);
 var
-  f, g: text;
   i: integer;
-  temps: string;
-  tempint: integer;
   str_help: string;
   
 begin
@@ -254,6 +251,48 @@ begin
         str_inp:= str_help;
         FillRectangle(round(width/3) + 180, round(height/3) + 200, width - 2*indent, round(height/3) + 230);
         TextOut(round(width/3) + 180, round(height/3) + 200, str_inp); 
+      end;
+  end;
+ 
+end;
+
+// get maze name
+procedure InputMaze(Key: integer);
+var
+  i: integer;
+  str_help: string;
+  
+begin
+  SetFontColor(clBlack);
+  SetFontSize(14);
+  if (check)
+  then
+  case key of
+    48..57, 65..90, 97..122: // Char keys
+    begin
+       if (length(str_inp)) < 16 then
+       begin
+         str_inp:= str_inp + chr(key);
+         TextOut(button_x1, button_ok_y1 + 20, str_inp); 
+       end;
+        DrawBorderWalls();
+        DrawFinish();
+        SetBrushColor(clWhite);
+        FillRectangle(button_x1, button5_y1, button_x2, button5_y2);
+    end;
+    8: // backspace
+      begin
+        str_help:= '';
+        for i:= 1 to (length(str_inp)-1) do
+          str_help:= str_help + str_inp[i];
+        str_inp:= str_help;
+        FillRectangle(button_x1, button_ok_y1 + 20, width + 200, button_ok_y2);
+        TextOut(button_x1, button_ok_y1 + 20, str_inp); 
+        
+        DrawBorderWalls();
+        DrawFinish();
+        SetBrushColor(clWhite);
+        FillRectangle(button_x1, button5_y1, button_x2, button5_y2);
       end;
   end;
  
@@ -367,7 +406,7 @@ Begin
       //readln(name);
       TextOut(round(width/3) + 80, round(height/3) + 200, 'Name: ');
       check:= true;
-      OnKeyDown:= Input;
+      OnKeyDown:= InputName;
       assign(f, 'src/highscores.txt');
       reset(f);  
       assign(g, 'temp.txt');
@@ -397,7 +436,7 @@ Begin
     end
     else
     begin
-      TextOut(round(width/3), round(height/3) + 230, 'Only random mazes are scored');
+      TextOut(round(width/3) - 100, round(height/3) + 230, 'Only random maze score can be putted in highscores');
       check_menu:= 2; // others
     end;
   end; // else
@@ -717,7 +756,8 @@ var
   i,j: integer;
   
 begin
-   
+  SetPixel(1,1, active);
+  
   i:= indent;
   while (i < width - indent) do
   begin
@@ -727,25 +767,45 @@ begin
     while (j < height - indent) do
     begin
       
+
+      
       SetPenWidth(line_size);
       SetPenColor(unactive);
+
       MoveTo(i,j);
-      LineTo(i,j+cell_size+1);
+      if (GetPixel(i, j + line_size) <> GetPixel(1,1))
+      then
+        LineTo(i,j+cell_size+1);
       MoveTo(i,j);
       
       SetPenWidth(line_size);
       SetPenColor(unactive);
+
       MoveTo(i, j);
-      LineTo(i+cell_size+1,j);
+      if (GetPixel(i + line_size, j) <> GetPixel(1,1))
+      then
+        LineTo(i+cell_size+1,j);
       MoveTo(i,j);
-      
+            
+      if ((GetPixel(i - line_size, j) = GetPixel(1,1))
+       or (GetPixel(i + line_size, j) = GetPixel(1,1))
+       or (GetPixel(i, j - line_size) = GetPixel(1,1))
+       or (GetPixel(i, j + line_size) = GetPixel(1,1)))
+      then
+      begin
+        SetBrushColor(active);
+        SetPenColor(active);
+        SetPixel(i,j,active);
+        
+        FillRectangle(i - 1, j - 1, i + 2, j + 2);        
+      end;
       j:= j + cell_size;
     end;
   
   i:= i + cell_size;
   
   end;
-    
+  SetBrushColor(clWhite);  
   
 end;
 
@@ -781,6 +841,8 @@ begin
   
   DrawBorderWalls();
   DrawFinish();
+  SetBrushColor(clWhite);
+  FillRectangle(button_x1, button5_y1, button_x2, button5_y2);
   
 end;
 
@@ -873,12 +935,102 @@ begin
   ClearWindow;
   DrawInputMenu();
   
+  SetFontColor(clBlack);
+  SetFontSize(14);
+  TextOut(button_x1, button_ok_y1, 'Maze name:');
+  TextOut(button_x1, button_ok_y1 + 20, str_inp);
+  
   action:= 0; // input menu
   
   DrawUnactiveWalls();
   SetPlayer(2*indent, 2*indent);
   DrawBorderWalls;
   DrawFinish();
+  
+end;
+
+Function IsSolvable(): boolean;
+var
+  i: integer;
+  local_number: integer;
+  finish: boolean;
+  live: integer;
+  to_exit: boolean;
+  
+begin
+  
+  number:= 1;
+  RemoveUnactive;
+  points[1].x := 2*indent;
+  points[1].y := 2*indent;
+  live:= 1;
+  
+  finish:= false;
+  while not(finish) do
+  begin
+    
+    local_number:= number;
+    for i:= (local_number - live + 1) to local_number do
+    begin
+      PaveWay(points[i].x, points[i].y);
+
+      if (checker[1] = true) // Right
+      then 
+        begin
+          number:= number + 1;
+          points[number].x := points[i].x + cell_size;
+          points[number].y := points[i].y;
+          live:= live + 1;
+          checker[1] := false;
+        end;
+      if (checker[2] = true) // Left
+      then
+        begin
+          number:= number + 1;
+          points[number].x := points[i].x - cell_size;
+          points[number].y := points[i].y;
+          live:= live + 1;
+          checker[2] := false;
+        end;
+      if (checker[3] = true) // Up
+      then
+        begin
+          number:= number + 1;
+          points[number].x := points[i].x;
+          points[number].y := points[i].y - cell_size;
+          live:= live + 1;
+          checker[3] := false;
+        end;
+      if (checker[4] = true) // Down
+      then  
+        begin
+          number:= number + 1;
+          points[number].x := points[i].x;
+          points[number].y := points[i].y + cell_size;
+          live:= live + 1;
+          checker[4] := false;
+        end;
+        
+      if ((checker[1] = false) and (checker[2] = false) and (checker[3] = false) and (checker[4] = false))
+      then
+        live:= live - 1;
+      
+    end;
+    finish:= CheckFinish();
+    if (live = 0)
+    then
+    begin
+      IsSolvable:= false;
+      to_exit:= true;
+      RemoveTrack;
+      break;
+    end;
+  end; 
+  
+  if not(to_exit)
+  then
+    IsSolvable:= true;
+  RemoveTrack;
   
 end;
 
@@ -895,11 +1047,19 @@ var
   horizontal: boolean;
   vertical: boolean;
   
+  uniq: boolean;
+  maze_amount: byte;
+  names: array[1..100] of string;
+  
 begin
   
   if (input_menu)
   then
   begin
+  
+  SetFontColor(clBlack);
+  SetFontSize(14);
+  TextOut(button_x1, button_ok_y1, 'Maze name:');
   
   if ((x > button_x1) and (x < button_x2) and (mousebutton = 1))
   then
@@ -912,8 +1072,59 @@ begin
         if (y > button1_y1) and (y < button1_y2)
         then
         begin
-          action:= 1; // save
-          DrawConfirmButtons();
+          
+          if (str_inp <> '')
+          then
+          begin
+            uniq:= true;
+            assign(f, 'src/mazes/maze_list.txt');
+            reset(f);
+            
+            assign(g, 'src/mazes/maze_amount.txt');
+            reset(g);
+            readln(g, maze_amount);
+            close(g);
+            
+            i:= 1;
+            while (i <= maze_amount) do
+            begin
+              
+              readln(f, names[i]);
+              if (names[i] = str_inp)
+              then
+              begin
+                SetFontColor(clRed);
+                SetFontSize(12);
+                TextOut(button_x1, button5_y1, 'You already have');
+                TextOut(button_x1, button5_y1 + 20, 'maze with this name');
+                uniq:= false;
+                break;
+              end;
+              
+              i:= i + 1;
+              
+            end;
+            
+            close(f);
+            
+            if (uniq)
+            then
+            begin
+              DrawConfirmButtons();
+              action:= 1; // save
+              SetFontColor(clBlack);
+              SetFontSize(14);
+              TextOut(button_x1, button_ok_y1, 'Maze name:');
+              TextOut(button_x1, button_ok_y1 + 20, str_inp);
+            end;
+            
+          end
+          else
+          begin
+            SetFontColor(clRed);
+            SetFontSize(12);
+            TextOut(button_x1, button5_y1, 'Input maze name !');
+          end;
         end;
               
         if (y > button2_y1) and (y < button2_y2)
@@ -940,18 +1151,59 @@ begin
     
     1: // confirm save
       begin
-        
+                
         if ((y > button1_y1) and (y < button1_y2)) // yes
         then
         begin
-          RemoveUnactive;
-          SaveWindow('src/mazes/my_maze');
-          FillRectangle(width + indent, 0, width + 200, 200);
-          DrawInputMenu();
-          action:= 0; // input menu
           
-          input_menu:= false;
-          Action0;
+          RemoveUnactive;
+          if (IsSolvable)
+          then
+          begin
+            
+            SaveWindow('src/mazes/' + str_inp);
+            assign(f, 'src/mazes/maze_list.txt');
+            append(f);
+            writeln(f, str_inp);
+            close(f);
+            
+            assign(g, 'src/mazes/maze_amount.txt');
+            reset(g);
+            readln(g, maze_amount);
+            close(g);
+            rewrite(g);
+            writeln(g, maze_amount + 1);
+            close(g);
+            
+            str_inp:= '';
+            FillRectangle(width + indent, 0, width + 200, 200);
+            DrawInputMenu();
+            action:= 0; // input menu
+            input_menu:= false;
+            Action0;
+            
+          end
+          else
+          begin
+
+            SetFontColor(clRed);
+            SetFontSize(12);
+            TextOut(button_x1, button5_y1, 'The maze isn`t solvable');
+            FillRectangle(width + indent, 0, width + 200, 200);
+            DrawInputMenu();
+            SetFontColor(clBlack);
+            SetFontSize(14);
+            TextOut(button_x1, button_ok_y1, 'Maze name:');
+            TextOut(button_x1, button_ok_y1 + 20, str_inp);
+            SetPlayer(2*indent, 2*indent);
+            DrawUnactiveWalls;
+            DrawBorderWalls;
+            DrawFinish;
+            action:= 0; // input menu
+            input_menu:= true;
+            
+          end;
+                    
         end;
         
         if ((y > button2_y1) and (y < button2_y2)) // no
@@ -1936,6 +2188,9 @@ begin
           then
           begin
             input_menu:= true;
+            str_inp:= '';
+            OnKeyDown:= InputMaze;
+            check:= true;
             StartInput();
           end;
           
