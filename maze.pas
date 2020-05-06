@@ -9,6 +9,8 @@ Uses
 
 Begin
   
+  deletings:= 0;
+  
   // Set window
   SetWindowHeight(height);
   SetWindowWidth(width+200);
@@ -21,5 +23,7 @@ Begin
   FillRectangle(1,1, width + 200, height);
   
   MainMenu();
+  
+  OnClose:= Delete;
   
 end.

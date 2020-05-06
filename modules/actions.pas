@@ -24,6 +24,28 @@ Var
   action: integer;
   input_menu: boolean;
   random_maze: boolean;
+  current_maze: string;
+  current_maze_i: byte;
+  
+  deletings: integer;
+  for_delete: array[1..100] of string;
+
+Procedure Delete();
+var
+  i: integer;
+  f: file;
+  
+Begin
+  {
+  for i:= 1 to deletings do
+  begin
+    assign(f, 'src/mazes/' + for_delete[i]);
+    rewrite(f);
+    erase(f);
+    close(f);
+  end;
+  }
+end;
   
 // Draws menu buttons
 Procedure DrawButtons();
@@ -123,6 +145,25 @@ begin
   
   SetFontSize(current_size);
   SetFontColor(current_color);
+  
+end;
+
+Procedure DrawLoadButtons();
+begin
+  
+  SetBrushColor(clWhite);
+  FillRectangle(width+line_size, 1, width + 200, height);
+  
+  SetFontSize(30);
+  SetFontColor(clLightGreen);
+  TextOut(width + 30, round((1/24*height)), 'MENU');
+  
+  
+  MakeSpecialButton(button_x1, button1_y1, 
+                    button_x2, button1_y2, '     Load');
+                    
+  MakeSpecialButton(button_x1, button2_y1, 
+                    button_x2, button2_y2, '    Delete');
   
 end;
 
@@ -235,7 +276,7 @@ begin
   if (check)
   then
   case key of
-    48..57, 65..90, 97..122: // Char keys
+    48..57, 65..90, 97..122, 32: // Char keys
     begin
        if (length(str_inp)) < 16 then
        begin
@@ -268,9 +309,9 @@ begin
   if (check)
   then
   case key of
-    48..57, 65..90, 97..122: // Char keys
+    48..57, 65..90, 97..122, 32: // Char keys
     begin
-       if (length(str_inp)) < 16 then
+       if (length(str_inp)) < 12 then
        begin
          str_inp:= str_inp + chr(key);
          TextOut(button_x1, button_ok_y1 + 20, str_inp); 
@@ -1038,6 +1079,7 @@ end;
 Procedure MenuMouseDown(x, y, mousebutton: integer);
 var
   f, g: text;
+  k: file;
   i: integer;
   temps: string;
   tempint: integer;
@@ -1046,10 +1088,18 @@ var
   y_start: integer;
   horizontal: boolean;
   vertical: boolean;
-  
+  name_width: integer;
+  name_height: integer;
   uniq: boolean;
   maze_amount: byte;
   names: array[1..100] of string;
+  x_highlight: integer;
+  y_highlight: integer;
+  current_highlight_x: integer;
+  current_highlight_y: integer;
+  highlight: integer;
+  m1, m2: integer;
+
   
 begin
   
@@ -1232,6 +1282,15 @@ begin
           SetPlayer(2*indent, 2*indent);
           DrawBorderWalls;
           DrawFinish();
+          
+          str_inp:= '';
+          
+          SetFontColor(clBlack);
+          SetFontSize(14);
+          
+          TextOut(button_x1, button_ok_y1, 'Maze name:');
+          TextOut(button_x1, button_ok_y1 + 20, str_inp);
+  
         end;
         
         if ((y > button2_y1) and (y < button2_y2)) // no
@@ -1269,6 +1328,7 @@ begin
         then
         begin
           CloseWindow;
+          Delete();
         end;
         
         if ((y > button2_y1) and (y < button2_y2)) // no
@@ -1454,7 +1514,10 @@ begin
             
              if ((y > button1_y1) and (y < button1_y2)) // Yes
              then
+             begin
                 CloseWindow;
+                Delete;
+             end;
             
             if ((y > button2_y1) and (y < button2_y2)) // No
             then
@@ -1750,11 +1813,98 @@ begin
           if ((y > button2_y1) and (y < button2_y2)) // Load maze
           then
           begin
+            
+            current_maze:= '';
+            current_maze_i:= 0;
+            
+            for i:=1 to 100 do
+              names[i]:= '';
+            
+            ClearWindow;
+            check_menu:= 11;
+            DrawLoadButtons;
+            
+            SetFontSize(30);
+            SetFontColor(clRed);
+            TextOut(round(width/2) - 140, 1, 'Choose maze:');
+            
+            assign(f, 'src/mazes/maze_amount.txt');
+            reset(f);
+            readln(f, maze_amount);
+            close(f);
+            
+            assign(f, 'src/mazes/maze_list.txt');
+            reset(f);
+                      
+            for i:= 1 to maze_amount do
+            begin
+              readln(f, names[i]);
+            end;
+            
+            close(f);
+
+            if (names[1] = '')
+            then
+            begin
+              
+              SetFontColor(clBlack);
+              SetFontSize(14);
+              TextOut(50, 100, 'There`re no saved mazes. Use "New maze" section to create your mazes.');
+              check_menu:= 2; // others;
+              DrawButtons;
+              
+            end
+            else
+            begin
+              SetFontColor(clBlack);
+              SetFontSize(40);
+              SetFontColor(clGray);
+              
+              SetPenColor(clBlue);
+              SetPenWidth(line_size);
+              
+              DrawRectangle(round(width/2) - 250, round(height/2) - 80, round(width/2) + 250, round(height/2) + 20);
+              TextOut(round(width/2) - 200, round(height/2) - 60, names[1]);
+              
+              MoveTo(round(width/2) - 265, round(height/2) - 80);
+              LineTo(round(width/2) - 265, round(height/2) + 20);
+              LineTo(round(width/2) - 315, round(height/2) - 30);
+              LineTo(round(width/2) - 265, round(height/2) - 80);
+              
+              MoveTo(round(width/2) + 265, round(height/2) - 80);
+              LineTo(round(width/2) + 265, round(height/2) + 20);
+              LineTo(round(width/2) + 315, round(height/2) - 30);
+              LineTo(round(width/2) + 265, round(height/2) - 80);
+              
+              current_maze:= names[1];
+              current_maze_i:= 1;
+            end;         
+          end;
+          
+        end;
+      
+    end;
+  
+  11: // Load maze
+    begin
+      if (mousebutton = 1)
+      then
+        if ((x > button_x1) and (x < button_x2))
+        then
+        begin
+          
+          if ((y > button_menu_y1) and (y < button_menu_y2)) // Menu
+          then
+            Action0;
+
+          if ((y > button1_y1) and (y < button1_y2))  // Load
+          then
+          begin
             ClearWindow;
   
             SetBrushColor(clWhite);
             
-            LoadWindow('src/mazes/my_maze');
+            LoadWindow('src/mazes/' + current_maze);
             
             random_maze:= false;
             
@@ -1780,12 +1930,203 @@ begin
           
             // Catch key tapping
             OnKeyDown:= GameKeyDown;
-                      
           end;
           
-        end;
-      
+          if ((y > button2_y1) and (y < button2_y2))  // Delete
+          then
+          begin
+            
+            
+            DrawConfirmButtons;
+            check_menu:= 12; // confirm delete
+                       
+          end;
+          
+       end;
+       
+       m1:= round(width/2) + 265;
+       m2:= round(height/2) - 30;
+       
+       if ((x > m1) and (y < (-x + m2 + m1 + 50)) and (y > (x + m2 - m1 - 50))) // Right
+       then
+       begin
+         
+         maze_amount:= 0;
+         assign(f, 'src/mazes/maze_amount.txt');
+         reset(f);
+         readln(f, maze_amount);
+         close(f);
+         
+         assign(f, 'src/mazes/maze_list.txt');
+         reset(f);
+         for i:= 1 to maze_amount do
+           readln(f, names[i]);
+         
+         close(f);
+         
+         SetBrushColor(clWhite);
+         FillRectangle(round(width/2) - 250, round(height/2) - 80, round(width/2) + 250, round(height/2) + 20);
+         if (current_maze_i = maze_amount)
+         then
+         begin
+           current_maze_i:= 1;
+           current_maze:= names[1];
+         end
+         else
+         begin
+           current_maze_i:= current_maze_i + 1;
+           current_maze:= names[current_maze_i];
+         end;
+         DrawRectangle(round(width/2) - 250, round(height/2) - 80, round(width/2) + 250, round(height/2) + 20);
+         SetFontColor(clGray);
+         SetFontSize(40);
+         TextOut(round(width/2) - 200, round(height/2) - 60, current_maze);
+         
+         
+       end;
+       
+       
+       m1:= round(width/2) - 265;
+       m2:= round(height/2) - 30;
+       
+       if ((x < m1) and (y < (x + m2 - m1 + 50)) and (y > (-x + m2 + m1 - 50))) // Left
+       then
+       begin
+         
+         maze_amount:= 0;
+         assign(f, 'src/mazes/maze_amount.txt');
+         reset(f);
+         readln(f, maze_amount);
+         close(f);
+         
+         assign(f, 'src/mazes/maze_list.txt');
+         reset(f);
+         for i:= 1 to maze_amount do
+           readln(f, names[i]);
+         
+         close(f);
+         
+         SetBrushColor(clWhite);
+         FillRectangle(round(width/2) - 250, round(height/2) - 80, round(width/2) + 250, round(height/2) + 20);
+         if (current_maze_i = 1)
+         then
+         begin
+           current_maze_i:= maze_amount;
+           current_maze:= names[maze_amount];
+         end
+         else
+         begin
+           current_maze_i:= current_maze_i - 1;
+           current_maze:= names[current_maze_i];
+         end;
+         DrawRectangle(round(width/2) - 250, round(height/2) - 80, round(width/2) + 250, round(height/2) + 20);
+         SetFontColor(clGray);
+         TextOut(round(width/2) - 200, round(height/2) - 60, current_maze);
+         
+       end;
+       
     end;
+    
+  12: // confirm delete
+  
+    begin
+      if (mousebutton = 1)
+        then
+        begin
+          if ((x > button_x1) and (x < button_x2))
+          then
+          begin
+            
+             if ((y > button1_y1) and (y < button1_y2)) // Yes
+             then
+             begin
+               
+               assign(f, 'src/mazes/' + current_maze);
+               erase(f);
+       
+               assign(f, 'src/mazes/maze_amount.txt');
+               reset(f);
+               readln(f, maze_amount);
+               close(f);
+               
+               assign(f, 'src/mazes/maze_list.txt');
+               reset(f);               
+               for i:= 1 to maze_amount do
+                  readln(f, names[i]);
+               close(f);
+               
+               for i:= current_maze_i to (maze_amount - 1) do
+               begin
+                 names[i] := names[i+1];
+               end;
+                              
+               maze_amount:= maze_amount - 1;
+               
+               assign(f, 'src/mazes/maze_amount.txt');
+               rewrite(f);
+               writeln(f, maze_amount);
+               close(f);
+               
+               assign(f, 'src/mazes/maze_list.txt');
+               rewrite(f);
+                            
+               for i:= 1 to maze_amount do
+                 writeln(f, names[i]);
+
+               close(f);
+               {
+               deletings:= deletings + 1;
+               for_delete[deletings]:= current_maze;
+               }
+               
+               if (maze_amount <> 0)
+               then
+               begin
+                 check_menu:= 11; // load
+                 SetBrushColor(clWhite);
+                 FillRectangle(width + 10, 1, width + 200, button3_y2);
+                 FillRectangle(round(width/2) - 250, round(height/2) - 80, round(width/2) + 250, round(height/2) + 20);
+                 
+                 DrawRectangle(round(width/2) - 250, round(height/2) - 80, round(width/2) + 250, round(height/2) + 20);
+                 SetFontColor(clGray);
+                 
+                 current_maze:= names[1];
+                 current_maze_i:= 1;
+                 
+                 TextOut(round(width/2) - 200, round(height/2) - 60, current_maze);
+                 
+                 DrawLoadButtons;
+               end
+               else
+               begin
+                  ClearWindow;
+                  SetFontSize(30);
+                  SetFontColor(clRed);
+                  TextOut(round(width/2) - 140, 1, 'Choose maze:');
+                  SetFontColor(clBlack);
+                  SetFontSize(14);
+                  TextOut(50, 100, 'There`re no saved mazes. Use "New maze" section to create your mazes.');
+                  check_menu:= 2; // others;
+                  DrawButtons;
+               end;
+               
+               
+               
+             end;
+            
+            if ((y > button2_y1) and (y < button2_y2)) // No
+            then
+            begin
+                check_menu:= 11; // load
+                SetBrushColor(clWhite);
+                FillRectangle(width + 10, 1, width + 200, button3_y2);
+                
+                DrawLoadButtons;
+            end;
+         end;
+       end;
+    end;
+
   
   end;
   end;

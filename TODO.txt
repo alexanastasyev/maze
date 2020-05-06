@@ -1,5 +1,0 @@
-- Checking inputed maze for solution
-- Saving mazes into files
-- Loading saved mazes
-- Opportunity to change and delete existing mazes
-- Opportunity to discard highscores ?
