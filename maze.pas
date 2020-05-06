@@ -9,8 +9,6 @@ Uses
 
 Begin
   
-  deletings:= 0;
-  
   // Set window
   SetWindowHeight(height);
   SetWindowWidth(width+200);

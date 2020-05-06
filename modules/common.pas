@@ -87,6 +87,35 @@ begin
   
 end;
 
+Procedure MakeDangerButton(x1,y1,x2,y2: integer; s: string);
+var
+  current_pen_color: color;
+  current_pen_width: integer;
+  current_font_size: integer;
+  current_font_color: color;
+  
+begin
+  
+  current_pen_color:= PenColor;
+  current_pen_width:= PenWidth;
+  current_font_size:= FontSize;
+  current_font_color:= FontColor;
+  
+  SetPenWidth(3);
+  SetPenColor(clOrange);
+  SetFontSize(22);
+  SetFontColor(clOrange);
+  
+  Rectangle(x1, y1, x2, y2);
+  TextOut(x1+2*indent, y1+2*indent, s);
+  
+  SetPenWidth(current_pen_width);
+  SetPenColor(current_pen_color);
+  SetFontSize(current_font_size);
+  SetFontColor(current_font_color);
+  
+end;
+
 Procedure DrawFinish();
 begin
   // Draw finish

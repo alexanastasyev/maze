@@ -26,9 +26,7 @@ Var
   random_maze: boolean;
   current_maze: string;
   current_maze_i: byte;
-  
-  deletings: integer;
-  for_delete: array[1..100] of string;
+  in_change: boolean;
 
 // Draws menu buttons
 Procedure DrawButtons();
@@ -131,6 +129,38 @@ begin
   
 end;
 
+Procedure DrawDangerConfirmButtons();
+var
+  current_size: integer;
+  current_color: Color;
+  
+begin
+  current_size:= FontSize;
+  current_color:= FontColor;
+  
+  check_menu:= 4; // confirm
+  
+  SetBrushColor(clWhite);
+  FillRectangle(width+line_size, 1, width + 200, height);
+  
+  
+  SetFontSize(30);
+  SetFontColor(clLightGreen);
+  TextOut(width + 25, round((1/24*height)), 'SURE?');
+  
+  
+  MakeDangerButton(button_x1, button1_y1, 
+                    button_x2, button1_y2, '      Yes');
+                    
+  MakeSpecialButton(button_x1, button2_y1, 
+                    button_x2, button2_y2, '       No');
+  
+  
+  SetFontSize(current_size);
+  SetFontColor(current_color);
+  
+end;
+
 Procedure DrawLoadButtons();
 begin
   
@@ -144,9 +174,12 @@ begin
   
   MakeSpecialButton(button_x1, button1_y1, 
                     button_x2, button1_y2, '     Load');
-                    
+  
   MakeSpecialButton(button_x1, button2_y1, 
-                    button_x2, button2_y2, '    Delete');
+                    button_x2, button2_y2, '     Edit');
+  
+  MakeDangerButton(button_x1, button3_y1, 
+                    button_x2, button3_y2, '    Delete');
   
 end;
 
@@ -1082,7 +1115,6 @@ var
   current_highlight_y: integer;
   highlight: integer;
   m1, m2: integer;
-
   
 begin
   
@@ -1119,22 +1151,30 @@ begin
             close(g);
             
             i:= 1;
+
             while (i <= maze_amount) do
             begin
               
               readln(f, names[i]);
+              
               if (names[i] = str_inp)
               then
-              begin
-                SetFontColor(clRed);
-                SetFontSize(12);
-                TextOut(button_x1, button5_y1, 'You already have');
-                TextOut(button_x1, button5_y1 + 20, 'maze with this name');
-                uniq:= false;
-                break;
-              end;
+                begin
+                  if (not(in_change) or (names[i] <> current_maze))
+                  then
+                  begin
+                    SetFontColor(clRed);
+                    SetFontSize(12);
+                    TextOut(button_x1, button5_y1, 'You already have');
+                    TextOut(button_x1, button5_y1 + 20, 'maze with this name');
+                    uniq:= false;
+                    break;
+                  end;
+          
+                end;
               
               i:= i + 1;
+              
               
             end;
             
@@ -1164,7 +1204,7 @@ begin
         then
         begin
           action:= 2; // discard
-          DrawConfirmButtons();
+          DrawDangerConfirmButtons();
         end;
               
         if (y > button3_y1) and (y < button3_y2)
@@ -1194,26 +1234,89 @@ begin
           then
           begin
             
-            SaveWindow('src/mazes/' + str_inp);
-            assign(f, 'src/mazes/maze_list.txt');
-            append(f);
-            writeln(f, str_inp);
-            close(f);
-            
-            assign(g, 'src/mazes/maze_amount.txt');
-            reset(g);
-            readln(g, maze_amount);
-            close(g);
-            rewrite(g);
-            writeln(g, maze_amount + 1);
-            close(g);
-            
-            str_inp:= '';
-            FillRectangle(width + indent, 0, width + 200, 200);
-            DrawInputMenu();
-            action:= 0; // input menu
-            input_menu:= false;
-            Action0;
+            if not(in_change)
+            then
+            begin
+              SaveWindow('src/mazes/' + str_inp);
+              assign(f, 'src/mazes/maze_list.txt');
+              append(f);
+              writeln(f, str_inp);
+              close(f);
+              
+              assign(g, 'src/mazes/maze_amount.txt');
+              reset(g);
+              readln(g, maze_amount);
+              close(g);
+              rewrite(g);
+              writeln(g, maze_amount + 1);
+              close(g);
+              
+              str_inp:= '';
+              FillRectangle(width + indent, 0, width + 200, 200);
+              DrawInputMenu();
+              action:= 0; // input menu
+              input_menu:= false;
+              Action0;
+            end
+            else // in_change
+            begin
+              
+              assign(f, 'src/mazes/' + current_maze);
+              erase(f);
+              
+              SaveWindow('src/mazes/' + str_inp);
+                     
+               assign(f, 'src/mazes/maze_amount.txt');
+               reset(f);
+               readln(f, maze_amount);
+               close(f);
+               
+               assign(f, 'src/mazes/maze_list.txt');
+               reset(f);               
+               for i:= 1 to maze_amount do
+                  readln(f, names[i]);
+               close(f);
+               
+               for i:= current_maze_i to (maze_amount - 1) do
+               begin
+                 names[i] := names[i+1];
+               end;
+                              
+               maze_amount:= maze_amount - 1;
+               
+               assign(f, 'src/mazes/maze_amount.txt');
+               rewrite(f);
+               writeln(f, maze_amount);
+               close(f);
+               
+               assign(f, 'src/mazes/maze_list.txt');
+               rewrite(f);
+                            
+               for i:= 1 to maze_amount do
+                 writeln(f, names[i]);
+
+               close(f);
+              
+              assign(f, 'src/mazes/maze_list.txt');
+              append(f);
+              writeln(f, str_inp);
+              close(f);
+              
+              assign(g, 'src/mazes/maze_amount.txt');
+              reset(g);
+              readln(g, maze_amount);
+              close(g);
+              rewrite(g);
+              writeln(g, maze_amount + 1);
+              close(g);
+              
+              str_inp:= '';
+              FillRectangle(width + indent, 0, width + 200, 200);
+              DrawInputMenu();
+              action:= 0; // input menu
+              input_menu:= false;
+              Action0;
+            end;
             
           end
           else
@@ -1281,6 +1384,10 @@ begin
         begin
           FillRectangle(width + indent, 0, width + 200, 200);
           DrawInputMenu();
+          SetFontColor(clBlack);
+          SetFontSize(14);
+          TextOut(button_x1, button_ok_y1, 'Maze name:');
+          TextOut(button_x1, button_ok_y1 + 20, str_inp);
           action:= 0; // input menu
         end;
         
@@ -1422,6 +1529,7 @@ begin
           begin
             input_menu:= true;
             str_inp:= '';
+            in_change:= false;
             OnKeyDown:= InputMaze;
             check:= true;
             StartInput();
@@ -1913,12 +2021,34 @@ begin
             OnKeyDown:= GameKeyDown;
           end;
           
-          if ((y > button2_y1) and (y < button2_y2))  // Delete
+          if ((y > button2_y1) and (y < button2_y2)) // Change
+          then
+          begin
+            ClearWindow;
+            LoadWindow('src/mazes/' + current_maze);
+            DrawUnactiveWalls;
+            DrawBorderWalls;
+            DrawFinish;
+            SetBrushColor(clWhite);
+            FillRectangle(width + indent, 1, width + 200, button4_y1);
+            DrawInputMenu;
+            
+            input_menu:= true;
+            str_inp:= current_maze;
+            in_change:= true;
+            OnKeyDown:= InputMaze;
+            action:= 0;
+            check:= true;
+            SetPlayer(2*indent, 2*indent);
+            
+          end;
+          
+          if ((y > button3_y1) and (y < button3_y2))  // Delete
           then
           begin
             
             
-            DrawConfirmButtons;
+            DrawDangerConfirmButtons;
             check_menu:= 12; // confirm delete
                        
           end;
