@@ -185,8 +185,11 @@ begin
   MakeSpecialButton(button_x1, button2_y1, 
                     button_x2, button2_y2, '     Edit');
   
-  MakeDangerButton(button_x1, button3_y1, 
-                    button_x2, button3_y2, '    Delete');
+  MakeSpecialButton(button_x1, button3_y1, 
+                    button_x2, button3_y2, '     Exit');
+  
+  MakeDangerButton(button_x1, button_ok_y1, 
+                    button_x2, button_ok_y2, '    Delete');
   
 end;
 
@@ -2062,7 +2065,16 @@ begin
             
           end;
           
-          if ((y > button3_y1) and (y < button3_y2))  // Delete
+          if ((y > button3_y1) and (y < button3_y2)) // exit
+          then
+          begin
+            SetBrushColor(clWhite);
+            FillRectangle(width + indent, 1, width + 200, height);
+            DrawConfirmButtons;
+            check_menu:= 15;
+          end;
+          
+          if ((y > button_ok_y1) and (y < button_ok_y2))  // Delete
           then
           begin
             
@@ -2349,6 +2361,30 @@ begin
               
             end;
         end;    
+    end;
+  
+   15: // confirm exit from load
+    begin
+      if (mousebutton = 1)
+      then
+        if ((x > button_x1) and (x < button_x2))
+        then
+        begin
+          
+          if ((y > button1_y1) and (y < button1_y2))
+          then
+            CloseWindow;
+          
+          if ((y > button2_y1) and (y < button2_y2))
+          then
+          begin
+            SetBrushColor(clWhite);
+            FillRectangle(width + indent, 1, width + 200, height);
+            DrawLoadButtons;
+            check_menu:= 11; // load
+          end;
+          
+        end;
     end;
   
   end;
