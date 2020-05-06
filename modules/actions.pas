@@ -1311,7 +1311,6 @@ begin
         then
         begin
           CloseWindow;
-          Delete();
         end;
         
         if ((y > button2_y1) and (y < button2_y2)) // no
@@ -1499,7 +1498,6 @@ begin
              then
              begin
                 CloseWindow;
-                Delete;
              end;
             
             if ((y > button2_y1) and (y < button2_y2)) // No
@@ -2057,10 +2055,6 @@ begin
                  writeln(f, names[i]);
 
                close(f);
-               {
-               deletings:= deletings + 1;
-               for_delete[deletings]:= current_maze;
-               }
                
                if (maze_amount <> 0)
                then
