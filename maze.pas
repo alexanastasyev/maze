@@ -24,6 +24,4 @@ Begin
   
   MainMenu();
   
-  OnClose:= Delete;
-  
 end.

@@ -30,23 +30,6 @@ Var
   deletings: integer;
   for_delete: array[1..100] of string;
 
-Procedure Delete();
-var
-  i: integer;
-  f: file;
-  
-Begin
-  {
-  for i:= 1 to deletings do
-  begin
-    assign(f, 'src/mazes/' + for_delete[i]);
-    rewrite(f);
-    erase(f);
-    close(f);
-  end;
-  }
-end;
-  
 // Draws menu buttons
 Procedure DrawButtons();
 var
