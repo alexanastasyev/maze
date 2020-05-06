@@ -1,8 +1,11 @@
-﻿Program writer;
+﻿Unit highscores_discarder;
+
+Procedure DiscardHighScores();
 Var
   f:text;
+  
 Begin
-  assign(f, '../src/highscores.txt');
+  assign(f, 'src/highscores.txt');
   rewrite(f);
   
   writeln(f, '-');
@@ -36,4 +39,7 @@ Begin
   writeln(f, 0);
   
   close(f);
+end;
+
+Begin
 end.

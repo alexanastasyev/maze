@@ -8,7 +8,8 @@ Uses
   optimal_solver;
 Uses 
   common;
-// Uses input_maze;
+Uses
+  highscores_discarder in '../tools/highscores_discarder.pas';
 
 Const
   active = maze_color;
@@ -97,6 +98,14 @@ begin
   
 end;
 
+Procedure DrawHighScoreButtons();
+begin
+  DrawButtons();
+  
+  MakeDangerButton(button_x1, button_ok_y1, 
+                   button_x2, button_ok_y2, '   Discard');
+end;
+
 Procedure DrawConfirmButtons();
 var
   current_size: integer;
@@ -137,9 +146,7 @@ var
 begin
   current_size:= FontSize;
   current_color:= FontColor;
-  
-  check_menu:= 4; // confirm
-  
+    
   SetBrushColor(clWhite);
   FillRectangle(width+line_size, 1, width + 200, height);
   
@@ -675,6 +682,14 @@ begin
   TextOut(1, 350, 'If you managed to enter the top ten players, game will ask you to input your name and place it in ');
   TextOut(1, 375, 'high scores. You can view the high scores table in "High scores" section.');
   
+  SetFontSize(20);
+  SetFontColor(clRed);
+  TextOut(1, 425, 'Create mazes');
+  SetFontSize(14);
+  SetFontColor(clBlack);
+  TextOut(1, 475, 'You can create and save your own mazes in "New maze" section. Then you can');
+  TextOut(1, 500, 'load and play them from "Start -> Load" section. Also you can edit or delete them from there.');
+  TextOut(1, 525, 'Created mazes must have a solution and a unique name');
   
   DrawButtons();
   
@@ -701,7 +716,7 @@ Var
   helper: player;
   
 Begin
-  check_menu:= 2; // others
+  check_menu:= 13; // highscores
   in_game:= false;
   
   SetFontSize(30);
@@ -712,7 +727,7 @@ Begin
   TextOut(1, round(height*(2/24)), 'Position');
   TextOut(round(width/2) - 100, round(height*(2/24)), 'Name');
   TextOut(width - 200, round(height*(2/24)), 'Score');
-  DrawButtons();
+  DrawHighScoreButtons();
   
   assign(f, 'src/highscores.txt');
   
@@ -1242,7 +1257,7 @@ begin
               append(f);
               writeln(f, str_inp);
               close(f);
-              
+                          
               assign(g, 'src/mazes/maze_amount.txt');
               reset(g);
               readln(g, maze_amount);
@@ -1250,6 +1265,8 @@ begin
               rewrite(g);
               writeln(g, maze_amount + 1);
               close(g);
+              
+              Sort;
               
               str_inp:= '';
               FillRectangle(width + indent, 0, width + 200, 200);
@@ -1309,6 +1326,8 @@ begin
               rewrite(g);
               writeln(g, maze_amount + 1);
               close(g);
+              
+              Sort;
               
               str_inp:= '';
               FillRectangle(width + indent, 0, width + 200, 200);
@@ -2186,6 +2205,8 @@ begin
 
                close(f);
                
+               Sort;
+               
                if (maze_amount <> 0)
                then
                begin
@@ -2196,6 +2217,7 @@ begin
                  
                  DrawRectangle(round(width/2) - 250, round(height/2) - 80, round(width/2) + 250, round(height/2) + 20);
                  SetFontColor(clGray);
+                 SetFontSize(40);
                  
                  current_maze:= names[1];
                  current_maze_i:= 1;
@@ -2233,7 +2255,101 @@ begin
          end;
        end;
     end;
-
+    
+  13: // highscores  
+    begin
+      if (mousebutton = 1)
+      then
+        if ((x > button_x1) and (x < button_x2)) 
+        then
+        begin
+          
+          if ((y > button1_y1) and (y < button1_y2)) // Start
+          then
+          begin
+            check_menu:= 10; // choose mode
+            
+            SetBrushColor(clWhite);
+            FillRectangle(width+line_size, 1, width + 200, height);
+            
+            SetFontSize(30);
+            SetFontColor(clLightGreen);
+            TextOut(width + 30, round((1/24*height)), 'MENU');
+            
+            
+            MakeSpecialButton(button_x1, button1_y1, 
+                              button_x2, button1_y2, '   Random');
+                              
+            MakeSpecialButton(button_x1, button2_y1, 
+                              button_x2, button2_y2, ' Load maze');
+          end;
+          
+          if ((y > button2_y1) and (y < button2_y2)) // Create maze
+          then
+          begin
+            input_menu:= true;
+            str_inp:= '';
+            in_change:= false;
+            OnKeyDown:= InputMaze;
+            check:= true;
+            StartInput();
+          end;
+          
+          if ((y > button3_y1) and (y < button3_y2)) // How to play
+          then
+            Action2();
+          
+          if ((y > button4_y1) and (y < button4_y2)) // High scores
+          then
+            Action3();
+          
+          if ((y > button5_y1) and (y < button5_y2)) // Exit
+          then
+            Action4();
+          
+          if ((y > button_menu_y1) and (y < button_menu_y2)) // Menu
+          then
+            Action0();
+          
+          if ((y > button_ok_y1) and (y < button_ok_y2)) // discard
+          then
+          begin
+            check_menu:= 14; // confirm discard highscores;
+            DrawDangerConfirmButtons;
+          end;
+          
+        end;
+    end;
+  
+  14: // confirm discard highscores
+    begin
+      if (mousebutton = 1)
+      then
+        if ((x > button_x1) and (x < button_x2))
+        then
+        begin
+          if ((y > button1_y1) and (y < button1_y2)) // Yes
+             then
+             begin
+                DiscardHighScores();
+                DrawHighScoreButtons;
+                SetBrushColor(clWhite);
+                FillRectangle(1, 1, width, height);
+                HighScores;
+                check_menu:= 13;
+             end;
+            
+          if ((y > button2_y1) and (y < button2_y2)) // No
+            then
+            begin
+              check_menu:= 13; // highscores
+              SetBrushColor(clWhite);
+              FillRectangle(width + indent, 1, width + 200, button3_y1);
+              DrawHighScoreButtons;
+              
+            end;
+        end;    
+    end;
   
   end;
   end;

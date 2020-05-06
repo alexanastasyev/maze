@@ -116,6 +116,49 @@ begin
   
 end;
 
+Procedure Sort();
+Var
+  f: text;
+  i,j: integer;
+  
+  s: array[1..100] of string;
+  st: string;
+  amount: integer;
+  
+Begin
+  
+  assign(f, 'src/mazes/maze_amount.txt');
+  reset(f);
+  readln(f, amount);
+  close(f);
+  
+  assign(f, 'src/mazes/maze_list.txt');
+  reset(f);
+  for i:= 1 to amount do
+    readln(f, s[i]);
+  
+  close(f);
+  
+  for i:= 1 to (amount - 1) do
+    for j:= 1 to (amount - 1) do
+      if (s[j] > s[j + 1])
+      then
+      begin
+        st:= s[j];
+        s[j]:= s[j + 1];
+        s[j + 1]:= st;
+      end;
+  
+  assign(f, 'src/mazes/maze_list.txt');
+  rewrite(f);
+  for i:= 1 to amount do
+    writeln(f, s[i]);
+  
+  close(f);
+  
+  
+end;  
+
 Procedure DrawFinish();
 begin
   // Draw finish
