@@ -496,7 +496,7 @@ Begin
     begin
       
       SetBrushColor(clWhite);
-      FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button5_y2 + 2);
+      FillRectangle(button_x1 - 2, button_menu_y1 - 2, width + 200, button5_y2 + 2);
       MakeSpecialButton(button_x1, button_ok_y1, button_x2, button_ok_y2, '  Confirm');
       
       
@@ -612,7 +612,7 @@ begin
         
          SetBrushColor(clWhite);
          
-         FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button4_y2);
+         FillRectangle(button_x1 - 2, button_menu_y1 - 2, width + 200, button4_y2);
          
          SetFontSize(12);
                   
@@ -1787,7 +1787,7 @@ begin
              then
              begin
               check_menu:= 8; // after game
-              FillRectangle(button_x1 - 2, button_menu_y1, width + 200, button4_y2);
+              FillRectangle(button_x1 - 2, button_menu_y1 - 2, width + 200, button4_y2);
               
               FindPath(PenX, PenY);
               counter:=counter + 100002;
