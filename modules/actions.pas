@@ -1169,6 +1169,8 @@ var
   highlight: integer;
   m1, m2: integer;
   
+  ch: boolean;
+  
 begin
   
   if (input_menu)
@@ -1191,7 +1193,14 @@ begin
         then
         begin
           
-          if (str_inp <> '')
+          for i:= 1 to length(str_inp) do
+            if (str_inp[i] <> ' ')
+            then
+              ch:= true
+            else
+              ch:= false;
+            
+          if ((str_inp <> '') and (ch))
           then
           begin
             uniq:= true;
