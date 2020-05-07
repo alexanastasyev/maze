@@ -8,8 +8,6 @@ Uses
   optimal_solver;
 Uses 
   common;
-Uses
-  highscores_discarder in '../tools/highscores_discarder.pas';
 
 Const
   active = maze_color;
@@ -29,6 +27,24 @@ Var
   current_maze_i: byte;
   in_change: boolean;
 
+Procedure DiscardHighScores();
+Var
+  f:text;
+  i: byte;
+  
+Begin
+  assign(f, 'src/highscores.txt');
+  rewrite(f);
+  
+  for i:= 1 to 10 do
+  begin
+    writeln(f, '-');
+    writeln(f, 0);
+  end;
+  
+  close(f);
+end;
+
 // Draws menu buttons
 Procedure DrawButtons();
 var
@@ -44,8 +60,12 @@ begin
   
   SetFontSize(30);
   SetFontColor(clLightGreen);
-  TextOut(width + 30, round((1/24*height)), 'MENU');
+  TextOut(width + 30, round((1/24*height)), ' Menu');
   
+  SetPenColor(clLightGreen);
+  SetPenWidth(3);
+  DrawRectangle(button_x1, button_menu_y1, 
+                    button_x2, button_menu_y2);
   
   MakeSpecialButton(button_x1, button1_y1, 
                     button_x2, button1_y2, '     Start');
@@ -81,8 +101,13 @@ begin
   
   SetFontSize(30);
   SetFontColor(clLightGreen);
-  TextOut(width + 30, round((1/24*height)), 'MENU');
+  TextOut(width + 30, round((1/24*height)), ' Menu');
   
+  SetPenColor(clLightGreen);
+  SetPenWidth(3);
+  
+  DrawRectangle(button_x1, button_menu_y1, 
+                    button_x2, button_menu_y2);
   
   MakeSpecialButton(button_x1, button1_y1, 
                     button_x2, button1_y2, '   Restart');
@@ -176,8 +201,13 @@ begin
   
   SetFontSize(30);
   SetFontColor(clLightGreen);
-  TextOut(width + 30, round((1/24*height)), 'MENU');
+  TextOut(width + 30, round((1/24*height)), ' Menu');
   
+  SetPenColor(clLightGreen);
+  SetPenWidth(3);
+  
+  DrawRectangle(button_x1, button_menu_y1, 
+                    button_x2, button_menu_y2);
   
   MakeSpecialButton(button_x1, button1_y1, 
                     button_x2, button1_y2, '     Load');
@@ -990,8 +1020,13 @@ Begin
   
   SetFontSize(30);
   SetFontColor(clLightGreen);
-  TextOut(width + 30, round((1/24*height)), 'MENU');
+  TextOut(width + 30, round((1/24*height)), ' Menu');
   
+  SetPenColor(clLightGreen);
+  SetPenWidth(3);
+  
+  DrawRectangle(button_x1, button_menu_y1, 
+                    button_x2, button_menu_y2);
   
   MakeSpecialButton(button_x1, button1_y1, 
                     button_x2, button1_y2, '     Save');
@@ -1536,8 +1571,13 @@ begin
             
             SetFontSize(30);
             SetFontColor(clLightGreen);
-            TextOut(width + 30, round((1/24*height)), 'MENU');
+            TextOut(width + 30, round((1/24*height)), ' Menu');
+  
+            SetPenColor(clLightGreen);
+            SetPenWidth(3);
             
+            DrawRectangle(button_x1, button_menu_y1, 
+                    button_x2, button_menu_y2);
             
             MakeSpecialButton(button_x1, button1_y1, 
                               button_x2, button1_y2, '   Random');
@@ -2286,8 +2326,11 @@ begin
             
             SetFontSize(30);
             SetFontColor(clLightGreen);
-            TextOut(width + 30, round((1/24*height)), 'MENU');
-            
+            TextOut(width + 30, round((1/24*height)), ' Menu');
+  
+            SetPenColor(clLightGreen);
+            SetPenWidth(3);
+            DrawRectangle(button_x1, button_menu_y1, button_x2, button_menu_y2);
             
             MakeSpecialButton(button_x1, button1_y1, 
                               button_x2, button1_y2, '   Random');
