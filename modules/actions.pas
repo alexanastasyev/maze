@@ -2306,6 +2306,7 @@ begin
             end;
          end;
        end;
+       SetPenColor(clBlue);
     end;
     
   13: // highscores  
