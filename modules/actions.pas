@@ -1720,6 +1720,7 @@ begin
                  counter:= 0;
                  DrawGameButtons;
                  SetFontColor(clBlack);
+                 check_menu:= 1; // game
                    SetFontSize(12);
                    TextOut(width + 10, round((19/24)*height), 'Use arrows to play');
                   
