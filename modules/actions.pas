@@ -219,15 +219,23 @@ end;
 
 // 'MAZE' and creator name
 Procedure StartScreen();
+var
+  background: Picture;
+  
 begin
   check_menu:= 2; // others
   in_game:= false;
   SetBrushColor(clWhite);
   SetFontColor(clGray);
+
+  background:= Picture.Create('src/background.jpg');
+  background.Draw(60, 200, width - 120, 380);
+  
   SetFontSize(100);
-  TextOut(round(width/3), round(height/3), 'MAZE');
+  TextOut(round(width/3) - 50, 1, 'MAZE');
   SetFontSize(20);
-  TextOut(round(width/3)+3, round(height/3) + 140, 'Created by Alexey Anastasyev');
+  TextOut(round(width/3)+3 - 50, 1 + 140, 'Created by Alexey Anastasyev');
+  
   DrawButtons();
   
 end;
