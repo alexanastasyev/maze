@@ -26,6 +26,8 @@ Var
   current_maze: string;
   current_maze_i: byte;
   in_change: boolean;
+  x_start0: integer;
+  y_start0: integer;
 
 Procedure DiscardHighScores();
 Var
@@ -369,7 +371,7 @@ begin
   case key of
     48..57, 65..90, 97..122, 32: // Char keys
     begin
-       if (length(str_inp)) < 12 then
+       if (length(str_inp)) < 10 then
        begin
          str_inp:= str_inp + chr(key);
          TextOut(button_x1, button_ok_y1 + 20, str_inp); 
@@ -1545,7 +1547,12 @@ begin
    
     if ((x_start <> 0) and (y_start <> 0) and not(horizontal and vertical) and (horizontal or vertical))
     then
+    begin
+      x_start0:= x_start;
+      y_start0:= y_start;
       WallAction(x_start, y_start, horizontal);
+      
+    end;
   end;
   end;
   end
@@ -2400,6 +2407,81 @@ begin
   end;
 end; // MenuMouseDown
 
+Procedure MenuMouseMove(x,y,mousebutton: integer);
+var
+  x_start: integer;
+  y_start: integer;
+  horizontal: boolean;
+  vertical: boolean;
+  i: integer;
+  
+Begin
+  
+  if ((input_menu) and not((x > button_x1) and (x < button_x2)))
+  then
+  begin
+  
+  if (mousebutton = 1)
+  then
+  begin
+    
+    x_start:= 0;
+    y_start:= 0;
+    
+    for i:= 1 to 40 do
+    begin
+      
+      if ((x >= (indent + line_size + (i-1)*cell_size + 1)) and (x <= (indent - line_size + i*cell_size)))
+      then
+      begin
+        x_start:= indent + (i-1)*cell_size + 1;
+        horizontal:= true;
+        break;
+      end;
+      
+      if ((x >= (indent + i*cell_size)) and ( x <= (indent + i*cell_size + line_size)))
+      then
+      begin
+        x_start:= indent + i*cell_size;
+        horizontal:= false;
+        break;
+      end;
+      
+    end;
+    
+    for i:= 1 to 30 do
+    begin
+      
+      if ((y >= (indent + line_size + (i-1)*cell_size + 1)) and (y <= (indent - line_size + i*cell_size)))
+      then
+      begin
+        y_start:= indent + (i-1)*cell_size + 1;
+        vertical:= true;   
+        break;
+      end;
+      
+      if ((y >= (indent + i*cell_size)) and ( y <= (indent + i*cell_size + line_size)))
+      then
+      begin
+        y_start:= indent + i*cell_size;
+        vertical:= false;
+        break;
+      end;
+      
+    end;
+   
+    if ((x_start <> 0) and (y_start <> 0) and not(horizontal and vertical) and (horizontal or vertical) and ((x_start <> x_start0) or (y_start <> y_start0)))
+    then
+    begin
+      x_start0:= x_start;
+      y_start0:= y_start;
+      WallAction(x_start, y_start, horizontal);
+      
+    end;
+  end;
+  end;
+end;
+
 // Displays menu
 Procedure MainMenu();
 begin
@@ -2409,8 +2491,12 @@ begin
   SetBrushColor(clWhite);
   StartScreen();  
   OnMouseDown:= MenuMouseDown;
+  OnMouseMove:= MenuMouseMove;
   
 end;
 
 begin
+  x_start0:= 0;
+  y_start0:= 0;
+  
 end.
