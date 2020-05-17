@@ -18,6 +18,7 @@ Var
   str_inp: string;
   check: boolean;
   check_menu: byte;
+  check_key_down: boolean;
   in_game: boolean;
   score: integer;
   action: integer;
@@ -225,6 +226,9 @@ var
   background: Picture;
   
 begin
+  
+  check_key_down:= false;
+  
   check_menu:= 2; // others
   in_game:= false;
   SetBrushColor(clWhite);
@@ -333,6 +337,10 @@ var
   str_help: string;
   
 begin
+  if not (check_key_down)
+  then
+    exit;
+  
   if (check)
   then
   case key of
@@ -354,6 +362,7 @@ begin
         TextOut(round(width/3) + 180, round(height/3) + 200, str_inp); 
       end;
   end;
+  
  
 end;
 
@@ -364,6 +373,10 @@ var
   str_help: string;
   
 begin
+  if not (check_key_down)
+  then
+    exit;
+    
   SetFontColor(clBlack);
   SetFontSize(14);
   if (check)
@@ -550,6 +563,11 @@ end;
 // Actions on tapping keys while playing
 procedure GameKeyDown(key: integer);  
 begin
+  
+  if not (check_key_down)
+  then
+    exit;
+    
     if not (win_checker)
     then
     begin
@@ -649,6 +667,7 @@ begin
       // Win();
     end;
   end; 
+  
 end; // GameKeyDown
   
 // Main playing procedure
@@ -678,7 +697,9 @@ begin
   // Set start position
   MoveTo(2*indent, 2*indent);
   SetPlayer(PenX, PenY);
-
+  
+  check_key_down:= true;
+  
   // Catch key tapping
   OnKeyDown:= GameKeyDown;
   
@@ -1042,6 +1063,8 @@ end;
 
 Procedure StartInput();
 begin
+  
+  check_key_down:= true;
   
   ClearWindow;
   DrawInputMenu();
@@ -2485,6 +2508,8 @@ end;
 // Displays menu
 Procedure MainMenu();
 begin
+  
+  check_key_down:= false;
   
   ClearWindow;
   check_menu:= 2; // others
