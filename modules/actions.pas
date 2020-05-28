@@ -2221,6 +2221,7 @@ begin
            current_maze:= names[current_maze_i];
          end;
          DrawRectangle(round(width/2) - 250, round(height/2) - 80, round(width/2) + 250, round(height/2) + 20);
+         SetFontSize(40);
          SetFontColor(clGray);
          TextOut(round(width/2) - 200, round(height/2) - 60, current_maze);
          
