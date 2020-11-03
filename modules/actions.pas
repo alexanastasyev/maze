@@ -2106,7 +2106,9 @@ begin
             // Set start position
             MoveTo(2*indent, 2*indent);
             SetPlayer(PenX, PenY);
-          
+            
+            check_key_down:= true;
+            
             // Catch key tapping
             OnKeyDown:= GameKeyDown;
           end;
